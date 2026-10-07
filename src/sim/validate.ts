@@ -26,7 +26,12 @@ export function validateSnapshot(v: unknown): Snapshot {
   });
   const people = s.people as L[];
   const ids = new Set<string>();
-  people.forEach((p, i) => { if (typeof p.id !== "string") fail(`people[${i}] needs id.`); ids.add(p.id as string); });
+  people.forEach((p, i) => {
+    if (typeof p.id !== "string") fail(`people[${i}] needs id.`);
+    ids.add(p.id as string);
+    // The page loads this image in every viewer's browser, so an arbitrary host would leak their IP.
+    if (p.avatarUrl !== undefined && (typeof p.avatarUrl !== "string" || !/^https:\/\/(avatars\.githubusercontent\.com|github\.com)\//.test(p.avatarUrl))) fail(`people[${i}].avatarUrl must be a https://avatars.githubusercontent.com or https://github.com link.`);
+  });
   (s.events as L[]).forEach((e, i) => {
     if (typeof e.at !== "string" || isNaN(Date.parse(e.at))) fail(`events[${i}].at is not an ISO timestamp.`);
     if (!TYPES.includes(e.type as string)) fail(`events[${i}].type "${String(e.type)}" is unknown.`);

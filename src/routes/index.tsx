@@ -1,4 +1,5 @@
-import { SNAPSHOT_URL, commitUrl, prNumber } from "@/lib/env";
+import { ALLOWED_SNAPSHOT_HOSTS, DEFAULT_ORG, SNAPSHOTS_BASE, SNAPSHOT_URL, commitUrl, prNumber } from "@/lib/env";
+import { loadSnapshot as loadFromSource } from "@/lib/snapshotSource";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FIXTURES } from "@/sim/fixture";
@@ -77,14 +78,20 @@ function Index() {
   };
   const loadFile = (f: File) => { void f.text().then((txt) => loadJson(txt, "custom", f.name)); };
 
-  // VITE_SNAPSHOT_URL: auto-load a hosted snapshot once on mount
+  // On open, show the newest published week. A build-time VITE_SNAPSHOT_URL still wins when set.
+  // Without one, a missing or unreachable feed just leaves the sample week showing.
   useEffect(() => {
-    if (!SNAPSHOT_URL) return;
-    setUrl(SNAPSHOT_URL);
-    void fetch(SNAPSHOT_URL)
-      .then((r) => { if (!r.ok) throw new Error(`Request failed (${r.status}).`); return r.text(); })
-      .then((txt) => loadJson(txt, "custom", SNAPSHOT_URL.split("/").pop() || "snapshot"))
-      .catch((e: Error) => setLoadMsg({ ok: false, text: `Couldn't fetch snapshot: ${e.message}` }));
+    const ctl = new AbortController();
+    const explicit = SNAPSHOT_URL || undefined;
+    if (explicit) setUrl(explicit);
+    loadFromSource(
+      explicit ? { snapshot: explicit } : {},
+      { base: SNAPSHOTS_BASE, org: DEFAULT_ORG, allowedHosts: ALLOWED_SNAPSHOT_HOSTS, signal: ctl.signal },
+      { trusted: true },
+    )
+      .then((r) => loadSnapshot(r.snapshot, "custom", r.label))
+      .catch((e: Error) => { if (explicit && e.name !== "AbortError") setLoadMsg({ ok: false, text: `Couldn't fetch snapshot: ${e.message}` }); });
+    return () => ctl.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
