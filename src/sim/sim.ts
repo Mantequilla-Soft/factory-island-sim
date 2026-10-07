@@ -21,22 +21,22 @@ export function buildTimeline(s: Snapshot): Timeline {
   const start = Date.parse(s.weekStart);
   const end = Date.parse(s.weekEnd);
   const hours = Math.ceil((end - start) / 3600_000);
-  const cum = [0];
-  for (let i = 0; i < hours; i++) cum.push(cum[i] + hourWeight(start + i * 3600_000));
+  const cum: number[] = [0];
+  for (let i = 0; i < hours; i++) cum.push(cum[i]! + hourWeight(start + i * 3600_000));
   return { start, end, cum };
 }
 export function realToPlay(tl: Timeline, ms: number) {
   const hf = Math.max(0, Math.min(tl.cum.length - 1, (ms - tl.start) / 3600_000));
   const i = Math.min(Math.floor(hf), tl.cum.length - 2);
-  const v = tl.cum[i] + (tl.cum[i + 1] - tl.cum[i]) * (hf - i);
-  return (v / tl.cum[tl.cum.length - 1]) * DURATION;
+  const v = tl.cum[i]! + (tl.cum[i + 1]! - tl.cum[i]!) * (hf - i);
+  return (v / tl.cum[tl.cum.length - 1]!) * DURATION;
 }
 export function playToReal(tl: Timeline, sec: number) {
-  const target = (Math.max(0, Math.min(DURATION, sec)) / DURATION) * tl.cum[tl.cum.length - 1];
+  const target = (Math.max(0, Math.min(DURATION, sec)) / DURATION) * tl.cum[tl.cum.length - 1]!;
   let lo = 0, hi = tl.cum.length - 1;
-  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (tl.cum[m] <= target) lo = m; else hi = m; }
-  const span = tl.cum[hi] - tl.cum[lo] || 1;
-  return tl.start + (lo + (target - tl.cum[lo]) / span) * 3600_000;
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (tl.cum[m]! <= target) lo = m; else hi = m; }
+  const span = tl.cum[hi]! - tl.cum[lo]! || 1;
+  return tl.start + (lo + (target - tl.cum[lo]!) / span) * 3600_000;
 }
 
 /* ---------- layout ---------- */
@@ -85,7 +85,7 @@ export function compile(s: Snapshot): Compiled {
       last = at;
       return { at, ev };
     });
-    return { prId, repo: evs[0].repo, actor: evs[0].actor, kind: evs[0].itemKind, station: hash(prId) % 8, steps };
+    return { prId, repo: evs[0]!.repo, actor: evs[0]!.actor, kind: evs[0]!.itemKind, station: hash(prId) % 8, steps };
   });
   const feed = prs.flatMap((p) => p.steps).sort((a, b) => a.at - b.at);
   return { snapshot: s, tl, islands: layoutIslands(s), prs, feed };
@@ -118,7 +118,7 @@ export function stateAt(c: Compiled, t: number): WorldState {
   const scraps: Pt[] = [];
 
   for (const pr of c.prs) {
-    const first = pr.steps[0];
+    const first = pr.steps[0]!;
     if (first.at > t) continue;
     const I = isle.get(pr.repo)!;
     const station = stationPos(pr.station);

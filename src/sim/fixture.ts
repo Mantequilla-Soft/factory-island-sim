@@ -29,7 +29,7 @@ export function sampleWeek(): Snapshot {
   ];
   const kinds: ItemKind[] = ["gear", "gear", "bolt", "bolt", "spring", "scroll", "nut", "gauge"];
   const events: ActivityEvent[] = [];
-  const pick = <T,>(a: T[]) => a[Math.floor(r() * a.length)];
+  const pick = <T,>(a: T[]): T => a[Math.floor(r() * a.length)]!;
   // working-hours biased timestamp
   const workTime = () => {
     const day = r() < 0.88 ? Math.floor(r() * 5) : 5 + Math.floor(r() * 2);

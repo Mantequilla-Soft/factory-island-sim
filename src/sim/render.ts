@@ -8,7 +8,7 @@ function hashColor(s: string) {
   const c = [P.butter, P.grass, P.cyan, P.sand, P.red, P.foam];
   let h = 0;
   for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return c[h % c.length];
+  return c[h % c.length]!;
 }
 
 function item(ctx: CanvasRenderingContext2D, k: ItemKind, x: number, y: number) {
@@ -38,7 +38,7 @@ export function draw(ctx: CanvasRenderingContext2D, c: Compiled, w: WorldState, 
   for (const I of c.islands) { ctx.beginPath(); ctx.moveTo(FACTORY.x, FACTORY.y); ctx.lineTo(I.dock.x, I.dock.y); ctx.stroke(); }
   // islands
   c.islands.forEach((I, idx) => {
-    const st = w.islands[idx];
+    const st = w.islands[idx]!;
     const r = Math.min(26, I.r + Math.floor(Math.sqrt(st.buildings)));
     ctx.fillStyle = P.sand; ctx.beginPath(); ctx.ellipse(I.center.x, I.center.y, r + 2, (r + 2) * 0.62, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = P.grass; ctx.beginPath(); ctx.ellipse(I.center.x, I.center.y - 1, r, r * 0.58, 0, 0, Math.PI * 2); ctx.fill();
