@@ -6,6 +6,7 @@ import { draw, RW as W, RH as H, screenToWorld, islandGeo, workerAt } from "@/si
 import { validateSnapshot } from "@/sim/validate";
 import { RetroAudio } from "@/sim/audio";
 import type { Snapshot } from "@/sim/types";
+import { CollectorDialog, downloadSnapshot } from "@/components/CollectorDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/")({
@@ -45,6 +46,7 @@ function Index() {
   const [dragging, setDragging] = useState(false);
   const [fadeKey, setFadeKey] = useState(0);
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const [collectorOpen, setCollectorOpen] = useState(false);
   const [muted, setMuted] = useState(true);
   const [volume, setVolume] = useState(0.5);
   const audio = useRef<RetroAudio | null>(null);
@@ -167,7 +169,9 @@ function Index() {
           <p className="mt-1 text-xs text-muted-foreground">{snapshot.org} · week of {snapshot.weekStart.slice(0, 10)}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <button onClick={() => setCollectorOpen(true)} className="border-2 border-primary bg-primary px-3 py-2 text-xs text-primary-foreground">FETCH GITHUB ORG</button>
           <button onClick={() => setSummaryOpen(true)} className={btn}>WEEK IN NUMBERS</button>
+          <button onClick={() => downloadSnapshot(snapshot, `${snapshot.org}-${snapshot.weekStart.slice(0, 10)}.json`)} className={btn}>DOWNLOAD JSON</button>
           <button onClick={toggleMute} aria-pressed={!muted} aria-label={muted ? "Turn sound on" : "Mute sound"}
             className={`border-2 px-3 py-2 text-xs ${muted ? "border-border bg-secondary text-secondary-foreground" : "border-accent bg-accent text-accent-foreground"}`}>
             {muted ? "♪ SOUND OFF" : "♪ SOUND ON"}
@@ -275,6 +279,8 @@ function Index() {
           </ol>
         </aside>
       </div>
+
+      <CollectorDialog open={collectorOpen} onOpenChange={setCollectorOpen} onLoaded={(s, label) => loadSnapshot(s, "custom", label)} />
 
       <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
         <DialogContent className="max-w-lg rounded-none border-4 border-border bg-card font-mono">
