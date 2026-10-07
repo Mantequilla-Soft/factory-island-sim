@@ -93,7 +93,7 @@ export function compile(s: Snapshot): Compiled {
 
 /* ---------- pure world state ---------- */
 export type WorkerPhase = "fabricating" | "carrying" | "queued" | "stamped" | "delivering" | "returning" | "scrapping" | "rework";
-export type WorkerState = { prId: string; actor: string; isBot: boolean; kind: ItemKind; pos: Pt; phase: WorkerPhase; carrying: boolean; stamped: boolean; progress: number };
+export type WorkerState = { prId: string; repo: string; slot: number; actor: string; isBot: boolean; kind: ItemKind; pos: Pt; phase: WorkerPhase; carrying: boolean; stamped: boolean; progress: number };
 export type IslandState = { id: string; buildings: number; mergedThisWeek: number; recent: { kind: ItemKind; prId: string }[]; queue: number };
 export type WorldState = { t: number; realMs: number; workers: WorkerState[]; islands: IslandState[]; inspectors: Pt[]; scraps: Pt[]; hidden: number };
 
@@ -166,18 +166,19 @@ export function stateAt(c: Compiled, t: number): WorldState {
   const workers: WorkerState[] = pending.map((p) => {
     const I = isle.get(p.pr.repo)!;
     let target: Pt;
+    let slot = -1;
     if (p.toKey === "station") target = stationPos(p.pr.station);
     else if (p.toKey === "island") target = I.center;
     else if (p.toKey === "factory") target = FACTORY;
     else {
       const q = queues.get(p.pr.repo) ?? [];
-      const slot = Math.max(0, q.findIndex((x) => x.prId === p.pr.prId));
+      slot = Math.max(0, q.findIndex((x) => x.prId === p.pr.prId));
       const dx = (FACTORY.x - I.dock.x), dy = (FACTORY.y - I.dock.y);
       const len = Math.hypot(dx, dy) || 1;
       target = { x: I.dock.x + (dx / len) * slot * 7, y: I.dock.y + (dy / len) * slot * 7 };
     }
     return {
-      prId: p.pr.prId, actor: p.pr.actor, isBot: bots.has(p.pr.actor), kind: p.pr.kind,
+      prId: p.pr.prId, repo: p.pr.repo, slot, actor: p.pr.actor, isBot: bots.has(p.pr.actor), kind: p.pr.kind,
       pos: lerp(p.from, target, (t - p.start) / WALK), phase: p.phase, carrying: p.carrying,
       stamped: p.stamped, progress: Math.max(0, Math.min(1, (t - p.start) / WALK)),
     };
