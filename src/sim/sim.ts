@@ -3,7 +3,7 @@ import type { ActivityEvent, ItemKind, Snapshot } from "./types";
 export const W = 320;
 export const H = 192;
 export const DURATION = 75; // playback seconds per week at 1x
-export const WALK = 1.4; // playback seconds per walk leg / min dwell
+export const WALK = 0.8; // playback seconds per walk leg / min dwell
 
 export type Pt = { x: number; y: number };
 export const FACTORY: Pt = { x: 160, y: 96 };

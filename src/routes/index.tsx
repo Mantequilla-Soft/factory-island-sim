@@ -61,7 +61,7 @@ function Index() {
 
   const people = new Map(compiled.snapshot.people.map((p) => [p.id, p]));
   const repoName = (id: string) => compiled.snapshot.repos.find((r) => r.id === id)?.name ?? id;
-  const feed = compiled.feed.filter((s) => s.at <= t).slice(-40).reverse();
+  const feed = compiled.feed.filter((s) => s.at <= t).sort((a, b) => b.ev.at.localeCompare(a.ev.at)).slice(0, 40);
   const sel = selected ? world.islands.find((i) => i.id === selected) : null;
   const selRepo = selected ? compiled.snapshot.repos.find((r) => r.id === selected) : null;
 
