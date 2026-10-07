@@ -1,3 +1,4 @@
+import { SNAPSHOT_URL, commitUrl, prNumber } from "@/lib/env";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FIXTURES } from "@/sim/fixture";
