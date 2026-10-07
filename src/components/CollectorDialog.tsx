@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { collect, lastCompleteWeek, type PrivateRepoMode } from "@/collector/core";
 import type { Snapshot } from "@/sim/types";
 import workflowYaml from "../../.github/workflows/collector.yml?raw";
+import { DEFAULT_ORG, DEV_GITHUB_TOKEN } from "@/lib/env";
 
 const field = "w-full border-2 border-border bg-background px-2 py-2 text-xs placeholder:text-muted-foreground";
 const btn = "border-2 border-border bg-secondary px-3 py-2 text-xs text-secondary-foreground hover:border-accent disabled:opacity-50";
@@ -25,9 +26,9 @@ function Copy({ text, label = "COPY" }: { text: string; label?: string }) {
 }
 
 export function CollectorDialog({ open, onOpenChange, onLoaded }: { open: boolean; onOpenChange: (o: boolean) => void; onLoaded: (s: Snapshot, label: string) => void }) {
-  const [org, setOrg] = useState("Mantequilla-Soft");
+  const [org, setOrg] = useState(DEFAULT_ORG);
   const [week, setWeek] = useState(() => lastCompleteWeek());
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(DEV_GITHUB_TOKEN);
   const [mode, setMode] = useState<PrivateRepoMode>("anonymize");
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState<string[]>([]);
