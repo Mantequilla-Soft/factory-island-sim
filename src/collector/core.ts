@@ -126,12 +126,22 @@ export async function collect(o: CollectOptions): Promise<CollectResult> {
   log(`Found ${repos.length} repositories. Scanning pull requests for ${o.week}…`);
 
   const startIso = start.toISOString();
-  const perRepo = await pool(repos, 4, async (repo) => {
-    const pulls = await all<GhPull>(`/repos/${org}/${repo.name}/pulls?state=all&sort=updated&direction=desc&per_page=100`,
-      (page) => page.length > 0 && page[page.length - 1]!.updated_at < startIso);
-    return { repo, pulls: pulls.filter((p) => p.updated_at >= startIso && p.created_at < end.toISOString()) };
+  // One search covers every repo (also saves the unauthenticated 60 req/hour budget).
+  type SearchItem = { number: number; title: string; user: GhUser | null; created_at: string; updated_at: string; closed_at: string | null; draft?: boolean; repository_url: string; pull_request?: { merged_at: string | null } };
+  const q = encodeURIComponent(`user:${org} is:pr updated:>=${startIso.slice(0, 10)} created:<${end.toISOString().slice(0, 10)}`);
+  const found: SearchItem[] = [];
+  let url: string | null = `/search/issues?q=${q}&per_page=100&sort=updated&order=desc`;
+  while (url && found.length < 1000) {
+    const r: { data: { items: SearchItem[] }; next: string | null } = await gh<{ items: SearchItem[] }>(url);
+    found.push(...r.data.items); url = r.next;
+  }
+  const byName = new Map(repos.map((r) => [r.name, r]));
+  let candidates = found.flatMap((it) => {
+    const repo = byName.get(it.repository_url.split("/").pop() ?? "");
+    if (!repo) return [];
+    const pr: GhPull = { number: it.number, title: it.title, user: it.user, created_at: it.created_at, updated_at: it.updated_at, closed_at: it.closed_at, merged_at: it.pull_request?.merged_at ?? null, ...(it.draft !== undefined ? { draft: it.draft } : {}) };
+    return [{ repo, pr }];
   });
-  let candidates = perRepo.flatMap(({ repo, pulls }) => pulls.map((pr) => ({ repo, pr })));
   const truncated = candidates.length > maxPrs;
   candidates = candidates.slice(0, maxPrs);
   log(`Reading reviews${o.token ? " and timelines" : ""} for ${candidates.length} pull requests…`);
