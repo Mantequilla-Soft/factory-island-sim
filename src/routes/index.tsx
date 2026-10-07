@@ -238,7 +238,7 @@ function Index() {
                   <dt className="text-muted-foreground">PR</dt><dd>{wPr.prId}</dd>
                   <dt className="text-muted-foreground">Island</dt><dd>{repoName(wPr.repo)}</dd>
                   <dt className="text-muted-foreground">Item</dt><dd>{wPr.kind}</dd>
-                  <dt className="text-muted-foreground">State</dt><dd className="uppercase text-primary">{wStatus}{wState?.stamped ? " · stamped" : ""}</dd>
+                  <dt className="text-muted-foreground">State</dt><dd className="uppercase text-primary">{wStatus}{wState?.stamped && wState.phase !== "stamped" ? " · stamped" : ""}</dd>
                   <dt className="text-muted-foreground">Since</dt><dd>{wLast ? fmt(Date.parse(wLast.ev.at)) : "—"}</dd>
                 </dl>
               </div>
