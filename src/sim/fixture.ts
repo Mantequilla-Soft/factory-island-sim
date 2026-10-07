@@ -47,9 +47,14 @@ export function makeWeek(o: Opts): Snapshot {
     counters[repo.id] = (counters[repo.id] ?? 100 + Math.floor(r() * 200)) + 1;
     const prId = `${repo.id}#${counters[repo.id]}`;
     let t = workTime();
+    const prUrl = repo.anonymized ? undefined : `https://github.com/Mantequilla-Soft/${repo.name}/pull/${counters[repo.id]}`;
+    const sha = Array.from({ length: 7 }, () => "0123456789abcdef"[Math.floor(r() * 16)]).join("");
     const push = (type: ActivityEvent["type"], who = actor) => {
       if (t < weekStart + 7 * 24 * H - 1000)
-        events.push({ at: new Date(t).toISOString(), prId, repo: repo.id, actor: who, type, itemKind });
+        events.push({
+          at: new Date(t).toISOString(), prId, repo: repo.id, actor: who, type, itemKind,
+          ...(prUrl ? { prUrl } : {}), ...(type === "pr_merged" && !repo.anonymized ? { commitSha: sha } : {}),
+        });
     };
     const reviewer = () => pick(humans.filter((h) => h !== actor));
     push("pr_opened");

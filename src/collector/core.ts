@@ -213,7 +213,12 @@ export async function collect(o: CollectOptions): Promise<CollectResult> {
       const n = info.anonymized ? (anonCounters.set(info.id, (anonCounters.get(info.id) ?? 0) + 1), anonCounters.get(info.id)!) : e.number;
       prIds.set(key, `${info.id}#${n}`);
     }
-    return { at: e.at, prId: prIds.get(key)!, repo: info.id, actor: e.actor, type: e.type, itemKind: e.itemKind };
+    // Links and commit hashes would reveal hidden repos, so anonymized islands get neither.
+    const link = info.anonymized ? {} : {
+      prUrl: `https://github.com/${org}/${e.repoName}/pull/${e.number}`,
+      ...(e.commitSha ? { commitSha: e.commitSha } : {}),
+    };
+    return { at: e.at, prId: prIds.get(key)!, repo: info.id, actor: e.actor, type: e.type, itemKind: e.itemKind, ...link };
   });
   if (!people.has("ghost") && events.some((e) => e.actor === "ghost")) people.set("ghost", { id: "ghost", displayName: "ghost", isBot: false });
   const used = new Set(events.map((e) => e.actor));

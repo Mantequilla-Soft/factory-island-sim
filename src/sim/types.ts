@@ -9,7 +9,8 @@ export type EventType =
 
 export type RepoInfo = { id: string; name: string; anonymized: boolean; mergedTotal: number };
 export type Person = { id: string; displayName?: string; avatarUrl?: string; hiveAccount?: string; isBot: boolean };
-export type ActivityEvent = { at: string; prId: string; repo: string; actor: string; type: EventType; itemKind: ItemKind };
+/** prUrl / commitSha are optional and omitted for anonymized repos. commitSha is the 7-char merge commit. */
+export type ActivityEvent = { at: string; prId: string; repo: string; actor: string; type: EventType; itemKind: ItemKind; prUrl?: string; commitSha?: string };
 
 export type Snapshot = {
   schemaVersion: 1;
