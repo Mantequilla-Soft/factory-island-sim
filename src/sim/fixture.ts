@@ -9,13 +9,15 @@ function rng(seed: number) {
   };
 }
 
-/** Deterministic sample week (2026-09-28 .. 2026-10-05) for Mantequilla-Soft. */
-export function sampleWeek(): Snapshot {
-  const r = rng(158);
-  const weekStart = Date.parse("2026-09-28T00:00:00Z");
+type Opts = { seed: number; weekStart: string; prs: number; closeP: number; openP: number; weekdayP: number; boost?: number };
+
+/** Deterministic generated week for Mantequilla-Soft. */
+export function makeWeek(o: Opts): Snapshot {
+  const r = rng(o.seed);
+  const weekStart = Date.parse(o.weekStart);
   const H = 3600_000;
   const repos = [
-    { id: "snapie-io", name: "snapie-io", anonymized: false, mergedTotal: 42 },
+    { id: "snapie-io", name: "snapie-io", anonymized: false, mergedTotal: 42 + (o.boost ?? 0) },
     { id: "butter-factory", name: "butter-factory", anonymized: false, mergedTotal: 3 },
     { id: "hive-wallet", name: "hive-wallet", anonymized: false, mergedTotal: 18 },
     { id: "snapie-games", name: "snapie-games", anonymized: false, mergedTotal: 27 },
@@ -32,12 +34,12 @@ export function sampleWeek(): Snapshot {
   const pick = <T,>(a: T[]): T => a[Math.floor(r() * a.length)]!;
   // working-hours biased timestamp
   const workTime = () => {
-    const day = r() < 0.88 ? Math.floor(r() * 5) : 5 + Math.floor(r() * 2);
+    const day = r() < o.weekdayP ? Math.floor(r() * 5) : 5 + Math.floor(r() * 2);
     const hour = r() < 0.85 ? 9 + r() * 10 : r() * 24;
     return weekStart + day * 24 * H + hour * H;
   };
   const counters: Record<string, number> = {};
-  for (let i = 0; i < 46; i++) {
+  for (let i = 0; i < o.prs; i++) {
     const repo = pick(repos);
     const bot = r() < 0.12;
     const actor = bot ? "dependabot[bot]" : pick(humans);
@@ -60,12 +62,12 @@ export function sampleWeek(): Snapshot {
       push("pr_ready_for_review");
     }
     const fate = r();
-    if (fate < 0.1) {
+    if (fate < o.closeP) {
       t += (1 + r() * 10) * H;
       push("pr_closed");
       continue;
     }
-    if (fate < 0.2) continue; // still open at week end
+    if (fate < o.closeP + o.openP) continue; // still open at week end
     t += (0.3 + r() * 6) * H;
     push("review_approved", reviewer());
     t += (0.1 + r() * 3) * H;
@@ -83,3 +85,11 @@ export function sampleWeek(): Snapshot {
     events,
   };
 }
+
+export const FIXTURES = [
+  { id: "sample", label: "Sample week · 28 Sep 2026", make: () => makeWeek({ seed: 158, weekStart: "2026-09-28T00:00:00Z", prs: 46, closeP: 0.1, openP: 0.1, weekdayP: 0.88 }) },
+  { id: "holiday", label: "Quiet holiday week · 21 Dec 2026", make: () => makeWeek({ seed: 2412, weekStart: "2026-12-21T00:00:00Z", prs: 11, closeP: 0.1, openP: 0.35, weekdayP: 0.55, boost: 20 }) },
+  { id: "crunch", label: "Crunch release week · 21 Sep 2026", make: () => makeWeek({ seed: 777, weekStart: "2026-09-21T00:00:00Z", prs: 110, closeP: 0.05, openP: 0.04, weekdayP: 0.8 }) },
+] as const;
+
+export const sampleWeek = FIXTURES[0].make;

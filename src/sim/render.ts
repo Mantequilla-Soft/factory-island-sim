@@ -36,7 +36,7 @@ const HAIR = [P.ink, P.wood, P.sand, P.red, P.slate];
 
 /** sim (top-down) coords -> isometric world units (centred on the factory) */
 export const toW = (p: Pt) => ({ x: p.x - 160, y: (p.y - 96) * 1.75 });
-const proj = (x: number, y: number, z = 0): [number, number] => [CX + (x - y), CY + (x + y) / 2 - z];
+export const proj = (x: number, y: number, z = 0): [number, number] => [CX + (x - y), CY + (x + y) / 2 - z];
 export function screenToWorld(sx: number, sy: number) {
   const a = sx - CX, b = (sy - CY) * 2;
   return { x: (a + b) / 2, y: (b - a) / 2 };
@@ -82,7 +82,45 @@ const GLYPHS: Record<string, string[]> = {
   B: ["110", "101", "110", "101", "110"], U: ["101", "101", "101", "101", "111"],
   T: ["111", "010", "010", "010", "010"], E: ["111", "100", "110", "100", "111"],
   R: ["110", "101", "110", "101", "101"],
+  "0": ["111", "101", "101", "101", "111"], "1": ["010", "110", "010", "010", "111"],
+  "2": ["111", "001", "111", "100", "111"], "3": ["111", "001", "111", "001", "111"],
+  "4": ["101", "101", "111", "001", "001"], "5": ["111", "100", "111", "001", "111"],
+  "6": ["111", "100", "111", "101", "111"], "7": ["111", "001", "010", "010", "010"],
+  "8": ["111", "101", "111", "101", "111"], "9": ["111", "101", "111", "001", "111"],
+  "+": ["000", "010", "111", "010", "000"],
 };
+function pixText(ctx: Ctx, str: string, x: number, y: number, col: string) {
+  ctx.fillStyle = col;
+  [...str].forEach((ch, i) => {
+    const g = GLYPHS[ch]; if (!g) return;
+    for (let gy = 0; gy < 5; gy++) for (let gx = 0; gx < 3; gx++) if (g[gy]![gx] === "1") ctx.fillRect(Math.round(x) + i * 4 + gx, Math.round(y) + gy, 1, 1);
+  });
+}
+function badge(ctx: Ctx, label: string, x: number, y: number) {
+  const w = label.length * 4 + 3;
+  x = Math.round(x - w / 2); y = Math.round(y);
+  px(ctx, x - 1, y - 1, P.ink, w + 2, 9);
+  px(ctx, x, y, P.butter, w, 7);
+  px(ctx, x, y, P.sand, w, 1);
+  pixText(ctx, label, x + 2, y + 1, P.ink);
+  px(ctx, x + Math.floor(w / 2), y + 7, P.ink, 1, 2);
+}
+
+/** Screen-space hit test for workers (front-most wins). */
+export const QUEUE_VISIBLE = 3;
+export function workerAt(w: WorldState, sx: number, sy: number): string | null {
+  let best: { id: string; d: number } | null = null;
+  for (const wk of w.workers) {
+    if (wk.slot >= QUEUE_VISIBLE) continue;
+    const p = toW(wk.pos);
+    const [x, y] = proj(p.x, p.y, 0);
+    if (Math.abs(sx - x) <= 6 && sy <= y + 3 && sy >= y - 22) {
+      const d = p.x + p.y;
+      if (!best || d > best.d) best = { id: wk.prId, d };
+    }
+  }
+  return best?.id ?? null;
+}
 
 function itemIcon(ctx: Ctx, k: ItemKind, x: number, y: number) {
   x = Math.round(x); y = Math.round(y);
@@ -153,7 +191,7 @@ function drawBee(ctx: Ctx, sx: number, sy: number, t: number) {
 /* ---------- main draw ---------- */
 type D = { d: number; fn: () => void };
 
-export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | null) {
+export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | null, selWorker: string | null = null) {
   const t = w.t;
   const geo = islandGeo(c, w);
   const prev = new Map(stateAt(c, Math.max(0, t - 0.06)).workers.map((k) => [k.prId, k.pos]));
@@ -193,7 +231,8 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
       const [tx, ty] = proj(g.x + Math.cos(a) * r, g.y + Math.sin(a) * r, 1);
       px(ctx, tx, ty, P.lime);
     }
-    if (selected === g.id && Math.floor(t * 4) % 2 === 0) {
+    const target = selWorker ? w.workers.find((k) => k.prId === selWorker)?.repo : null;
+    if ((selected === g.id || target === g.id) && Math.floor(t * 4) % 2 === 0) {
       for (const p of disc(g.x, g.y, g.R + 6, 0, 56)) px(ctx, p[0], p[1], P.foam);
     }
   });
@@ -398,6 +437,7 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
 
   // workers
   for (const wk of w.workers) {
+    if (wk.slot >= QUEUE_VISIBLE) continue;
     const p = toW(wk.pos);
     const pp = prev.get(wk.prId);
     const q = pp ? toW(pp) : p;
@@ -405,12 +445,21 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     const moving = Math.hypot(dx, dy) > 0.05;
     const dir = moving ? { x: dx, y: dy } : { x: 0.3, y: 1 };
     const working = wk.phase === "fabricating" || wk.phase === "rework";
+    const sel = wk.prId === selWorker;
     add(p.x, p.y, () => {
+      if (sel) {
+        const on = Math.floor(t * 6) % 2 ? P.foam : P.sand;
+        for (const q2 of disc(p.x, p.y, 5, 0, 16)) px(ctx, q2[0], q2[1], on);
+      }
       drawWorker(ctx, p.x, p.y, t, wk.actor, wk.isBot, dir, moving, working);
       const [hx, hy] = proj(p.x, p.y, 17);
       if (wk.carrying && !working) {
         itemIcon(ctx, wk.kind, hx, hy);
         if (wk.stamped) { px(ctx, hx + 2, hy - 5, P.grass, 3, 3); px(ctx, hx + 3, hy - 4, P.paper); }
+      }
+      if (sel) {
+        const [ax, ay] = proj(p.x, p.y, 26 + (Math.floor(t * 4) % 2));
+        px(ctx, ax - 2, ay, P.foam, 5, 1); px(ctx, ax - 1, ay + 1, P.foam, 3, 1); px(ctx, ax, ay + 2, P.foam, 1, 1);
       }
       if (working) {
         if (Math.floor(t * 8 + p.x) % 3 === 0) {
@@ -443,11 +492,18 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     });
   }
 
+  // crowd badges at piers whose queue overflows
+  geo.forEach((g, gi) => {
+    const extra = w.islands[gi]!.queue - QUEUE_VISIBLE;
+    if (extra <= 0) return;
+    add(g.dock.x + 40, g.dock.y + 40, () => {
+      const [bx, by] = proj(g.dock.x, g.dock.y, 24 + (Math.floor(t * 3) % 2));
+      badge(ctx, `+${extra}`, bx, by);
+    });
+  });
+
   items.sort((a, b) => a.d - b.d);
   for (const it of items) it.fn();
 
-  if (w.hidden) {
-    px(ctx, 6, RH - 16, P.butter, 26, 11);
-    ctx.fillStyle = P.ink; ctx.font = "8px monospace"; ctx.fillText(`+${w.hidden}`, 9, RH - 8);
-  }
+  if (w.hidden) badge(ctx, `+${w.hidden}`, 16, RH - 14);
 }
