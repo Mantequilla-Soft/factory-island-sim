@@ -180,7 +180,17 @@ export async function collect(o: CollectOptions): Promise<CollectResult> {
       if (r.state === "APPROVED") push(r.submitted_at, "review_approved", addPerson(r.user));
       else if (r.state === "CHANGES_REQUESTED") push(r.submitted_at, "review_changes_requested", addPerson(r.user));
     }
-    if (pr.merged_at) push(pr.merged_at, "pr_merged", author);
+    if (pr.merged_at) {
+      push(pr.merged_at, "pr_merged", author);
+      // Merge commit hash costs one request per PR, so only fetch it with a token (5,000/hour).
+      const last = ev[ev.length - 1];
+      if (o.token && last?.type === "pr_merged") {
+        try {
+          const sha = (await gh<{ merge_commit_sha?: string | null }>(`${base}/pulls/${pr.number}`)).data.merge_commit_sha;
+          if (sha) last.commitSha = sha.slice(0, 7);
+        } catch { /* hash is optional */ }
+      }
+    }
     else if (pr.closed_at) push(pr.closed_at, "pr_closed", author);
     return ev;
   })).flat();
@@ -213,7 +223,12 @@ export async function collect(o: CollectOptions): Promise<CollectResult> {
       const n = info.anonymized ? (anonCounters.set(info.id, (anonCounters.get(info.id) ?? 0) + 1), anonCounters.get(info.id)!) : e.number;
       prIds.set(key, `${info.id}#${n}`);
     }
-    return { at: e.at, prId: prIds.get(key)!, repo: info.id, actor: e.actor, type: e.type, itemKind: e.itemKind };
+    // Links and commit hashes would reveal hidden repos, so anonymized islands get neither.
+    const link = info.anonymized ? {} : {
+      prUrl: `https://github.com/${org}/${e.repoName}/pull/${e.number}`,
+      ...(e.commitSha ? { commitSha: e.commitSha } : {}),
+    };
+    return { at: e.at, prId: prIds.get(key)!, repo: info.id, actor: e.actor, type: e.type, itemKind: e.itemKind, ...link };
   });
   if (!people.has("ghost") && events.some((e) => e.actor === "ghost")) people.set("ghost", { id: "ghost", displayName: "ghost", isBot: false });
   const used = new Set(events.map((e) => e.actor));

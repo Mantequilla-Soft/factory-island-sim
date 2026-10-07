@@ -34,6 +34,8 @@ export function validateSnapshot(v: unknown): Snapshot {
     if (!repoIds.has(e.repo as string)) fail(`events[${i}].repo "${String(e.repo)}" is not in repos.`);
     if (typeof e.prId !== "string") fail(`events[${i}].prId missing.`);
     if (!ids.has(e.actor as string)) fail(`events[${i}].actor "${String(e.actor)}" is not in people.`);
+    if (e.prUrl !== undefined && (typeof e.prUrl !== "string" || !/^https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/\d+$/.test(e.prUrl))) fail(`events[${i}].prUrl must be a https://github.com/<org>/<repo>/pull/<n> link.`);
+    if (e.commitSha !== undefined && (typeof e.commitSha !== "string" || !/^[0-9a-f]{7,40}$/.test(e.commitSha))) fail(`events[${i}].commitSha must be a hex commit hash.`);
   });
   const snap = {
     ...(s as unknown as Snapshot),

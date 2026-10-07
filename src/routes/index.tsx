@@ -1,3 +1,4 @@
+import { SNAPSHOT_URL, commitUrl, prNumber } from "@/lib/env";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FIXTURES } from "@/sim/fixture";
@@ -76,6 +77,17 @@ function Index() {
   };
   const loadFile = (f: File) => { void f.text().then((txt) => loadJson(txt, "custom", f.name)); };
 
+  // VITE_SNAPSHOT_URL: auto-load a hosted snapshot once on mount
+  useEffect(() => {
+    if (!SNAPSHOT_URL) return;
+    setUrl(SNAPSHOT_URL);
+    void fetch(SNAPSHOT_URL)
+      .then((r) => { if (!r.ok) throw new Error(`Request failed (${r.status}).`); return r.text(); })
+      .then((txt) => loadJson(txt, "custom", SNAPSHOT_URL.split("/").pop() || "snapshot"))
+      .catch((e: Error) => setLoadMsg({ ok: false, text: `Couldn't fetch snapshot: ${e.message}` }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!playing) return;
     let raf = 0, last = performance.now();
@@ -141,6 +153,8 @@ function Index() {
   const wLast = wPr ? [...wPr.steps].reverse().find((s) => s.at <= t) : null;
   const wPerson = wPr ? people.get(wPr.actor) : null;
   const wStatus = wState ? wState.phase : wLast?.ev.type === "pr_merged" ? "delivered" : wLast?.ev.type === "pr_closed" ? "scrapped" : "off shift";
+  const wEvents = selWorker ? snapshot.events.filter((e) => e.prId === selWorker) : [];
+  const wLink = { url: wEvents.find((e) => e.prUrl)?.prUrl, sha: wEvents.find((e) => e.commitSha)?.commitSha };
 
   const summary = useMemo(() => {
     const ev = snapshot.events;
@@ -244,7 +258,15 @@ function Index() {
                   <dt className="text-muted-foreground">Item</dt><dd>{wPr.kind}</dd>
                   <dt className="text-muted-foreground">State</dt><dd className="uppercase text-primary">{wStatus}{wState?.stamped && wState.phase !== "stamped" ? " · stamped" : ""}</dd>
                   <dt className="text-muted-foreground">Since</dt><dd>{wLast ? fmt(Date.parse(wLast.ev.at)) : "—"}</dd>
+                  {wLink.sha && <><dt className="text-muted-foreground">Commit</dt><dd>
+                    {wLink.url ? <a href={commitUrl(wLink.url, wLink.sha)} target="_blank" rel="noopener noreferrer" className="border border-border px-1 text-primary hover:border-accent">{wLink.sha}</a> : wLink.sha}
+                  </dd></>}
                 </dl>
+                {wLink.url && (
+                  <a href={wLink.url} target="_blank" rel="noopener noreferrer" className="mt-2 block text-accent hover:underline">
+                    Open PR #{prNumber(wLink.url)} on GitHub ↗
+                  </a>
+                )}
               </div>
             )}
           </div>
@@ -273,7 +295,15 @@ function Index() {
                 <button className="text-left text-success hover:underline" onClick={() => setSelWorker(s.ev.prId)}>
                   {people.get(s.ev.actor)?.displayName ?? s.ev.actor}
                 </button>{" "}
-                {EVENT_LABEL[s.ev.type]} a <b>{s.ev.itemKind}</b> → {repoName(s.ev.repo)}
+                {s.ev.prUrl
+                  ? <a href={s.ev.prUrl} target="_blank" rel="noopener noreferrer" className="hover:text-accent hover:underline">{EVENT_LABEL[s.ev.type]} a <b>{s.ev.itemKind}</b></a>
+                  : <>{EVENT_LABEL[s.ev.type]} a <b>{s.ev.itemKind}</b></>} → {repoName(s.ev.repo)}{" "}
+                {s.ev.prUrl
+                  ? <a href={s.ev.prUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">#{prNumber(s.ev.prUrl)}</a>
+                  : <span className="text-muted-foreground">{s.ev.prId}</span>}
+                {s.ev.prUrl && s.ev.commitSha && (
+                  <> <a href={commitUrl(s.ev.prUrl, s.ev.commitSha)} target="_blank" rel="noopener noreferrer" className="border border-border px-1 text-primary hover:border-accent">{s.ev.commitSha}</a></>
+                )}
               </li>
             ))}
           </ol>
