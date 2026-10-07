@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { sampleWeek } from "@/sim/fixture";
-import { compile, stateAt, DURATION, W, H, EVENT_LABEL } from "@/sim/sim";
-import { draw } from "@/sim/render";
+import { compile, stateAt, DURATION, EVENT_LABEL } from "@/sim/sim";
+import { draw, RW as W, RH as H, screenToWorld, islandGeo } from "@/sim/render";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -55,7 +55,8 @@ function Index() {
   const onClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - r.left) / r.width) * W, y = ((e.clientY - r.top) / r.height) * H;
-    const hit = compiled.islands.find((i) => Math.hypot((x - i.center.x) / 1, (y - i.center.y) / 0.62) < 30);
+    const p = screenToWorld(x, y);
+    const hit = islandGeo(compiled, world).find((g) => Math.hypot(p.x - g.x, p.y - g.y) < g.R + 8);
     setSelected(hit ? hit.id : null);
   };
 
