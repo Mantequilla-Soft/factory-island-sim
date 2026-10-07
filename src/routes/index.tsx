@@ -19,8 +19,12 @@ export const Route = createFileRoute("/")({
 });
 
 const SPEEDS = [0.5, 1, 2, 4] as const;
-const fmt = (ms: number) =>
-  new Date(ms).toLocaleString("en-GB", { weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) + " UTC";
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const pad = (n: number) => String(n).padStart(2, "0");
+const fmt = (ms: number) => {
+  const d = new Date(ms);
+  return `${DAYS[d.getUTCDay()]} ${d.getUTCDate()}/${d.getUTCMonth() + 1} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`;
+};
 
 function Index() {
   const compiled = useMemo(() => compile(sampleWeek()), []);
