@@ -1,0 +1,2586 @@
+{
+  "schemaVersion": 1,
+  "org": "Mantequilla-Soft",
+  "weekStart": "2026-10-05T00:00:00.000Z",
+  "weekEnd": "2026-10-12T00:00:00.000Z",
+  "generatedAt": "2026-10-12T07:20:38.039Z",
+  "repos": [
+    {
+      "anonymized": false,
+      "mergedTotal": 143,
+      "id": "snapie-io",
+      "name": "snapie-io"
+    },
+    {
+      "anonymized": true,
+      "mergedTotal": 55,
+      "id": "island-1",
+      "name": "Mystery Island"
+    },
+    {
+      "anonymized": false,
+      "mergedTotal": 416,
+      "id": "new-3speak-tv",
+      "name": "new-3speak-tv"
+    },
+    {
+      "anonymized": false,
+      "mergedTotal": 0,
+      "id": "factory-island-sim",
+      "name": "factory-island-sim"
+    },
+    {
+      "anonymized": false,
+      "mergedTotal": 218,
+      "id": "hivesnaps",
+      "name": "hivesnaps"
+    }
+  ],
+  "people": [
+    {
+      "isBot": true,
+      "id": "dependabot[bot]",
+      "displayName": "dependabot",
+      "avatarUrl": "https://avatars.githubusercontent.com/in/29110?v=4"
+    },
+    {
+      "isBot": false,
+      "id": "hiveuprss",
+      "displayName": "hiveuprss",
+      "avatarUrl": "https://avatars.githubusercontent.com/u/62359919?v=4"
+    },
+    {
+      "isBot": false,
+      "id": "tibfox",
+      "displayName": "tibfox",
+      "avatarUrl": "https://avatars.githubusercontent.com/u/6019754?v=4"
+    },
+    {
+      "isBot": false,
+      "id": "menobass",
+      "displayName": "menobass",
+      "avatarUrl": "https://avatars.githubusercontent.com/u/33322443?v=4"
+    },
+    {
+      "isBot": true,
+      "id": "coderabbitai[bot]",
+      "displayName": "coderabbitai",
+      "avatarUrl": "https://avatars.githubusercontent.com/in/347564?v=4"
+    }
+  ],
+  "events": [
+    {
+      "at": "2026-10-05T01:49:01Z",
+      "prId": "snapie-io#151",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/151",
+      "commitSha": "7bb9b72"
+    },
+    {
+      "at": "2026-10-05T01:50:15Z",
+      "prId": "snapie-io#154",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/154",
+      "commitSha": "f248c98"
+    },
+    {
+      "at": "2026-10-05T01:51:09Z",
+      "prId": "snapie-io#150",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/150",
+      "commitSha": "a5a9bc7"
+    },
+    {
+      "at": "2026-10-05T01:54:32Z",
+      "prId": "snapie-io#156",
+      "repo": "snapie-io",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/156",
+      "commitSha": "cfcde14"
+    },
+    {
+      "at": "2026-10-06T05:12:48Z",
+      "prId": "snapie-io#160",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/160"
+    },
+    {
+      "at": "2026-10-06T05:13:48.000Z",
+      "prId": "snapie-io#160",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/160"
+    },
+    {
+      "at": "2026-10-06T08:26:51Z",
+      "prId": "new-3speak-tv#476",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/476"
+    },
+    {
+      "at": "2026-10-06T08:27:25Z",
+      "prId": "new-3speak-tv#476",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/476",
+      "commitSha": "b379564"
+    },
+    {
+      "at": "2026-10-06T08:27:51.000Z",
+      "prId": "new-3speak-tv#476",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/476"
+    },
+    {
+      "at": "2026-10-06T08:28:58Z",
+      "prId": "new-3speak-tv#477",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/477"
+    },
+    {
+      "at": "2026-10-06T08:28:59Z",
+      "prId": "new-3speak-tv#477",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/477"
+    },
+    {
+      "at": "2026-10-06T08:29:12Z",
+      "prId": "new-3speak-tv#477",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/477",
+      "commitSha": "b81c453"
+    },
+    {
+      "at": "2026-10-06T09:47:42Z",
+      "prId": "island-1#17",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T09:48:42.000Z",
+      "prId": "island-1#17",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T09:55:15Z",
+      "prId": "island-1#19",
+      "repo": "island-1",
+      "actor": "dependabot[bot]",
+      "type": "pr_merged",
+      "itemKind": "crate"
+    },
+    {
+      "at": "2026-10-06T09:55:26Z",
+      "prId": "island-1#18",
+      "repo": "island-1",
+      "actor": "dependabot[bot]",
+      "type": "pr_merged",
+      "itemKind": "crate"
+    },
+    {
+      "at": "2026-10-06T09:55:43Z",
+      "prId": "island-1#17",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T10:59:07Z",
+      "prId": "new-3speak-tv#478",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/478"
+    },
+    {
+      "at": "2026-10-06T10:59:10Z",
+      "prId": "new-3speak-tv#478",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/478",
+      "commitSha": "61c5f5e"
+    },
+    {
+      "at": "2026-10-06T11:00:07.000Z",
+      "prId": "new-3speak-tv#478",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/478"
+    },
+    {
+      "at": "2026-10-06T11:06:35Z",
+      "prId": "new-3speak-tv#479",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/479"
+    },
+    {
+      "at": "2026-10-06T11:06:38Z",
+      "prId": "new-3speak-tv#479",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/479",
+      "commitSha": "584c593"
+    },
+    {
+      "at": "2026-10-06T11:06:39Z",
+      "prId": "new-3speak-tv#479",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/479"
+    },
+    {
+      "at": "2026-10-06T17:22:59Z",
+      "prId": "snapie-io#161",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/161"
+    },
+    {
+      "at": "2026-10-06T17:23:59.000Z",
+      "prId": "snapie-io#161",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/161"
+    },
+    {
+      "at": "2026-10-06T17:23:59Z",
+      "prId": "snapie-io#161",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/161",
+      "commitSha": "ce2e2cb"
+    },
+    {
+      "at": "2026-10-06T17:24:52Z",
+      "prId": "snapie-io#160",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/160",
+      "commitSha": "27c91fd"
+    },
+    {
+      "at": "2026-10-06T17:43:14Z",
+      "prId": "island-1#16",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T17:44:14.000Z",
+      "prId": "island-1#16",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T17:48:18Z",
+      "prId": "island-1#16",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T17:57:33Z",
+      "prId": "island-1#14",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T17:58:33.000Z",
+      "prId": "island-1#14",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T17:58:38Z",
+      "prId": "island-1#13",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T17:59:38.000Z",
+      "prId": "island-1#13",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:32:35Z",
+      "prId": "island-1#12",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:33:35.000Z",
+      "prId": "island-1#12",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:33:40Z",
+      "prId": "island-1#11",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:34:40.000Z",
+      "prId": "island-1#11",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:39:21Z",
+      "prId": "island-1#10",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:40:21.000Z",
+      "prId": "island-1#10",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:42:45Z",
+      "prId": "island-1#15",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:43:45.000Z",
+      "prId": "island-1#15",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:44:32Z",
+      "prId": "island-1#15",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:44:48Z",
+      "prId": "island-1#14",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:44:59Z",
+      "prId": "island-1#13",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:45:10Z",
+      "prId": "island-1#12",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:45:25Z",
+      "prId": "island-1#11",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:45:34Z",
+      "prId": "island-1#10",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T18:49:45Z",
+      "prId": "snapie-io#162",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/162"
+    },
+    {
+      "at": "2026-10-06T19:01:01Z",
+      "prId": "island-1#9",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T19:02:01.000Z",
+      "prId": "island-1#9",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T19:03:36Z",
+      "prId": "island-1#9",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut"
+    },
+    {
+      "at": "2026-10-06T19:14:21Z",
+      "prId": "new-3speak-tv#480",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/480"
+    },
+    {
+      "at": "2026-10-06T19:14:27Z",
+      "prId": "new-3speak-tv#480",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/480",
+      "commitSha": "6a60857"
+    },
+    {
+      "at": "2026-10-06T19:15:21.000Z",
+      "prId": "new-3speak-tv#480",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/480"
+    },
+    {
+      "at": "2026-10-06T19:16:56Z",
+      "prId": "new-3speak-tv#481",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/481"
+    },
+    {
+      "at": "2026-10-06T19:17:00Z",
+      "prId": "new-3speak-tv#481",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/481",
+      "commitSha": "8124f0d"
+    },
+    {
+      "at": "2026-10-06T19:17:02Z",
+      "prId": "new-3speak-tv#481",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/481"
+    },
+    {
+      "at": "2026-10-06T19:28:39.000Z",
+      "prId": "snapie-io#162",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/162"
+    },
+    {
+      "at": "2026-10-06T19:29:39Z",
+      "prId": "snapie-io#162",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "review_changes_requested",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/162"
+    },
+    {
+      "at": "2026-10-06T19:56:53Z",
+      "prId": "snapie-io#163",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/163"
+    },
+    {
+      "at": "2026-10-06T19:57:53.000Z",
+      "prId": "snapie-io#163",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/163"
+    },
+    {
+      "at": "2026-10-06T20:31:37Z",
+      "prId": "snapie-io#162",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "review_approved",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/162"
+    },
+    {
+      "at": "2026-10-06T20:31:51Z",
+      "prId": "snapie-io#162",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/162",
+      "commitSha": "7ade4b1"
+    },
+    {
+      "at": "2026-10-06T20:32:17Z",
+      "prId": "snapie-io#163",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/163",
+      "commitSha": "08eab15"
+    },
+    {
+      "at": "2026-10-06T20:48:25Z",
+      "prId": "snapie-io#164",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/164"
+    },
+    {
+      "at": "2026-10-06T20:49:03Z",
+      "prId": "snapie-io#164",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/164",
+      "commitSha": "9b1724c"
+    },
+    {
+      "at": "2026-10-06T20:49:25.000Z",
+      "prId": "snapie-io#164",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/164"
+    },
+    {
+      "at": "2026-10-06T21:01:25Z",
+      "prId": "snapie-io#172",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/172"
+    },
+    {
+      "at": "2026-10-06T21:01:33Z",
+      "prId": "snapie-io#173",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/173"
+    },
+    {
+      "at": "2026-10-06T21:01:34Z",
+      "prId": "snapie-io#174",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/174"
+    },
+    {
+      "at": "2026-10-06T21:01:35Z",
+      "prId": "snapie-io#175",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/175"
+    },
+    {
+      "at": "2026-10-06T21:01:36Z",
+      "prId": "snapie-io#176",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/176"
+    },
+    {
+      "at": "2026-10-06T21:01:36Z",
+      "prId": "snapie-io#177",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/177"
+    },
+    {
+      "at": "2026-10-06T21:01:37Z",
+      "prId": "snapie-io#178",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/178"
+    },
+    {
+      "at": "2026-10-06T21:01:48Z",
+      "prId": "snapie-io#179",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/179"
+    },
+    {
+      "at": "2026-10-06T21:01:49Z",
+      "prId": "snapie-io#180",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/180"
+    },
+    {
+      "at": "2026-10-06T21:01:50Z",
+      "prId": "snapie-io#181",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/181"
+    },
+    {
+      "at": "2026-10-06T21:01:50Z",
+      "prId": "snapie-io#182",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/182"
+    },
+    {
+      "at": "2026-10-06T21:01:51Z",
+      "prId": "snapie-io#183",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/183"
+    },
+    {
+      "at": "2026-10-06T21:01:51Z",
+      "prId": "snapie-io#184",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/184"
+    },
+    {
+      "at": "2026-10-06T21:31:38Z",
+      "prId": "snapie-io#185",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/185"
+    },
+    {
+      "at": "2026-10-06T21:34:00Z",
+      "prId": "snapie-io#185",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/185"
+    },
+    {
+      "at": "2026-10-06T21:34:01Z",
+      "prId": "snapie-io#186",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/186"
+    },
+    {
+      "at": "2026-10-06T21:34:57Z",
+      "prId": "snapie-io#172",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/172"
+    },
+    {
+      "at": "2026-10-06T21:34:57Z",
+      "prId": "snapie-io#173",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/173"
+    },
+    {
+      "at": "2026-10-06T21:34:57Z",
+      "prId": "snapie-io#174",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/174"
+    },
+    {
+      "at": "2026-10-06T21:34:58Z",
+      "prId": "snapie-io#175",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/175"
+    },
+    {
+      "at": "2026-10-06T21:34:58Z",
+      "prId": "snapie-io#176",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/176"
+    },
+    {
+      "at": "2026-10-06T21:34:58Z",
+      "prId": "snapie-io#177",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/177"
+    },
+    {
+      "at": "2026-10-06T21:34:58Z",
+      "prId": "snapie-io#178",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/178"
+    },
+    {
+      "at": "2026-10-06T21:34:59Z",
+      "prId": "snapie-io#179",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/179"
+    },
+    {
+      "at": "2026-10-06T21:35:08Z",
+      "prId": "snapie-io#180",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/180"
+    },
+    {
+      "at": "2026-10-06T21:35:08Z",
+      "prId": "snapie-io#181",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/181"
+    },
+    {
+      "at": "2026-10-06T21:35:08Z",
+      "prId": "snapie-io#182",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/182"
+    },
+    {
+      "at": "2026-10-06T21:35:08Z",
+      "prId": "snapie-io#183",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/183"
+    },
+    {
+      "at": "2026-10-06T21:35:08Z",
+      "prId": "snapie-io#184",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/184"
+    },
+    {
+      "at": "2026-10-06T21:36:38Z",
+      "prId": "snapie-io#186",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_closed",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/186"
+    },
+    {
+      "at": "2026-10-06T22:53:45Z",
+      "prId": "snapie-io#187",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/187"
+    },
+    {
+      "at": "2026-10-06T22:54:45.000Z",
+      "prId": "snapie-io#187",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/187"
+    },
+    {
+      "at": "2026-10-06T22:59:01Z",
+      "prId": "snapie-io#187",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/187",
+      "commitSha": "8ef8282"
+    },
+    {
+      "at": "2026-10-06T23:10:43Z",
+      "prId": "snapie-io#188",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/188"
+    },
+    {
+      "at": "2026-10-06T23:11:43.000Z",
+      "prId": "snapie-io#188",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/188"
+    },
+    {
+      "at": "2026-10-06T23:30:42Z",
+      "prId": "snapie-io#188",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/188",
+      "commitSha": "d6a06ec"
+    },
+    {
+      "at": "2026-10-07T00:32:52Z",
+      "prId": "snapie-io#201",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/201"
+    },
+    {
+      "at": "2026-10-07T00:33:52.000Z",
+      "prId": "snapie-io#201",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/201"
+    },
+    {
+      "at": "2026-10-07T01:39:55Z",
+      "prId": "snapie-io#202",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/202"
+    },
+    {
+      "at": "2026-10-07T01:47:08Z",
+      "prId": "snapie-io#201",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "review_changes_requested",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/201"
+    },
+    {
+      "at": "2026-10-07T01:48:12Z",
+      "prId": "snapie-io#202",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/202"
+    },
+    {
+      "at": "2026-10-07T01:59:16Z",
+      "prId": "snapie-io#205",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/205"
+    },
+    {
+      "at": "2026-10-07T02:00:16.000Z",
+      "prId": "snapie-io#205",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/205"
+    },
+    {
+      "at": "2026-10-07T03:49:06Z",
+      "prId": "snapie-io#202",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "review_changes_requested",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/202"
+    },
+    {
+      "at": "2026-10-07T04:34:02Z",
+      "prId": "snapie-io#207",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/207"
+    },
+    {
+      "at": "2026-10-07T04:35:02.000Z",
+      "prId": "snapie-io#207",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/207"
+    },
+    {
+      "at": "2026-10-07T04:47:53Z",
+      "prId": "snapie-io#205",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/205",
+      "commitSha": "17f66ed"
+    },
+    {
+      "at": "2026-10-07T04:53:19Z",
+      "prId": "snapie-io#201",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/201",
+      "commitSha": "c89c2bb"
+    },
+    {
+      "at": "2026-10-07T05:10:05Z",
+      "prId": "snapie-io#208",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/208"
+    },
+    {
+      "at": "2026-10-07T05:10:35Z",
+      "prId": "snapie-io#208",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/208"
+    },
+    {
+      "at": "2026-10-07T05:12:50Z",
+      "prId": "snapie-io#208",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/208",
+      "commitSha": "c3a65b6"
+    },
+    {
+      "at": "2026-10-07T05:23:03Z",
+      "prId": "snapie-io#209",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/209"
+    },
+    {
+      "at": "2026-10-07T05:24:03.000Z",
+      "prId": "snapie-io#209",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/209"
+    },
+    {
+      "at": "2026-10-07T05:26:30Z",
+      "prId": "snapie-io#209",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/209",
+      "commitSha": "13fa9e6"
+    },
+    {
+      "at": "2026-10-07T05:34:29Z",
+      "prId": "snapie-io#207",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/207",
+      "commitSha": "6deb7b0"
+    },
+    {
+      "at": "2026-10-07T08:48:24Z",
+      "prId": "new-3speak-tv#482",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/482"
+    },
+    {
+      "at": "2026-10-07T08:48:30Z",
+      "prId": "new-3speak-tv#482",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/482",
+      "commitSha": "3679ac8"
+    },
+    {
+      "at": "2026-10-07T08:49:24.000Z",
+      "prId": "new-3speak-tv#482",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/482"
+    },
+    {
+      "at": "2026-10-07T08:49:47Z",
+      "prId": "new-3speak-tv#483",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/483"
+    },
+    {
+      "at": "2026-10-07T08:49:48Z",
+      "prId": "new-3speak-tv#483",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/483"
+    },
+    {
+      "at": "2026-10-07T08:49:50Z",
+      "prId": "new-3speak-tv#483",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/483",
+      "commitSha": "bba1fdf"
+    },
+    {
+      "at": "2026-10-07T13:45:45Z",
+      "prId": "snapie-io#210",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/210"
+    },
+    {
+      "at": "2026-10-07T13:46:45.000Z",
+      "prId": "snapie-io#210",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/210"
+    },
+    {
+      "at": "2026-10-07T13:49:13Z",
+      "prId": "new-3speak-tv#484",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/484"
+    },
+    {
+      "at": "2026-10-07T13:49:16Z",
+      "prId": "new-3speak-tv#484",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/484",
+      "commitSha": "51dff61"
+    },
+    {
+      "at": "2026-10-07T13:50:13.000Z",
+      "prId": "new-3speak-tv#484",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/484"
+    },
+    {
+      "at": "2026-10-07T13:54:50Z",
+      "prId": "new-3speak-tv#485",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/485"
+    },
+    {
+      "at": "2026-10-07T13:54:51Z",
+      "prId": "new-3speak-tv#485",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/485"
+    },
+    {
+      "at": "2026-10-07T13:54:54Z",
+      "prId": "new-3speak-tv#485",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/485",
+      "commitSha": "1914f80"
+    },
+    {
+      "at": "2026-10-07T14:08:18Z",
+      "prId": "snapie-io#211",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/211"
+    },
+    {
+      "at": "2026-10-07T14:09:18.000Z",
+      "prId": "snapie-io#211",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/211"
+    },
+    {
+      "at": "2026-10-07T14:50:40Z",
+      "prId": "snapie-io#212",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "scroll",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/212"
+    },
+    {
+      "at": "2026-10-07T14:50:43Z",
+      "prId": "snapie-io#213",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/213"
+    },
+    {
+      "at": "2026-10-07T14:51:28Z",
+      "prId": "snapie-io#214",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/214"
+    },
+    {
+      "at": "2026-10-07T14:51:40.000Z",
+      "prId": "snapie-io#212",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "scroll",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/212"
+    },
+    {
+      "at": "2026-10-07T14:51:43.000Z",
+      "prId": "snapie-io#213",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/213"
+    },
+    {
+      "at": "2026-10-07T14:54:10Z",
+      "prId": "snapie-io#213",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/213",
+      "commitSha": "efb40d9"
+    },
+    {
+      "at": "2026-10-07T14:58:15Z",
+      "prId": "snapie-io#210",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/210",
+      "commitSha": "91dc31e"
+    },
+    {
+      "at": "2026-10-07T14:58:24Z",
+      "prId": "snapie-io#212",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "scroll",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/212",
+      "commitSha": "d758390"
+    },
+    {
+      "at": "2026-10-07T14:58:32Z",
+      "prId": "snapie-io#211",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/211",
+      "commitSha": "40a8653"
+    },
+    {
+      "at": "2026-10-07T16:08:28Z",
+      "prId": "snapie-io#202",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "review_approved",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/202"
+    },
+    {
+      "at": "2026-10-07T16:45:21Z",
+      "prId": "snapie-io#202",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/202",
+      "commitSha": "54e0436"
+    },
+    {
+      "at": "2026-10-07T17:18:18Z",
+      "prId": "snapie-io#214",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/214"
+    },
+    {
+      "at": "2026-10-07T17:18:25Z",
+      "prId": "snapie-io#214",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/214",
+      "commitSha": "c558eef"
+    },
+    {
+      "at": "2026-10-07T18:12:48Z",
+      "prId": "factory-island-sim#1",
+      "repo": "factory-island-sim",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "scroll",
+      "prUrl": "https://github.com/Mantequilla-Soft/factory-island-sim/pull/1"
+    },
+    {
+      "at": "2026-10-07T18:13:48.000Z",
+      "prId": "factory-island-sim#1",
+      "repo": "factory-island-sim",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "scroll",
+      "prUrl": "https://github.com/Mantequilla-Soft/factory-island-sim/pull/1"
+    },
+    {
+      "at": "2026-10-07T18:22:47Z",
+      "prId": "factory-island-sim#2",
+      "repo": "factory-island-sim",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/factory-island-sim/pull/2"
+    },
+    {
+      "at": "2026-10-07T18:23:47.000Z",
+      "prId": "factory-island-sim#2",
+      "repo": "factory-island-sim",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/factory-island-sim/pull/2"
+    },
+    {
+      "at": "2026-10-07T19:18:35Z",
+      "prId": "factory-island-sim#1",
+      "repo": "factory-island-sim",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "scroll",
+      "prUrl": "https://github.com/Mantequilla-Soft/factory-island-sim/pull/1",
+      "commitSha": "8b21a56"
+    },
+    {
+      "at": "2026-10-07T19:18:44Z",
+      "prId": "snapie-io#220",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/220"
+    },
+    {
+      "at": "2026-10-07T19:18:48Z",
+      "prId": "factory-island-sim#2",
+      "repo": "factory-island-sim",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/factory-island-sim/pull/2",
+      "commitSha": "97c455c"
+    },
+    {
+      "at": "2026-10-07T19:36:29Z",
+      "prId": "snapie-io#220",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/220"
+    },
+    {
+      "at": "2026-10-07T19:48:39Z",
+      "prId": "snapie-io#221",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/221"
+    },
+    {
+      "at": "2026-10-07T19:48:47Z",
+      "prId": "snapie-io#222",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/222"
+    },
+    {
+      "at": "2026-10-07T19:49:47.000Z",
+      "prId": "snapie-io#222",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/222"
+    },
+    {
+      "at": "2026-10-07T19:51:46Z",
+      "prId": "snapie-io#222",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/222",
+      "commitSha": "572dbe6"
+    },
+    {
+      "at": "2026-10-07T19:59:57Z",
+      "prId": "snapie-io#227",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/227"
+    },
+    {
+      "at": "2026-10-07T20:00:57.000Z",
+      "prId": "snapie-io#227",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/227"
+    },
+    {
+      "at": "2026-10-07T20:02:25Z",
+      "prId": "snapie-io#227",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/227",
+      "commitSha": "8b9a5f5"
+    },
+    {
+      "at": "2026-10-07T20:10:28Z",
+      "prId": "snapie-io#228",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/228"
+    },
+    {
+      "at": "2026-10-07T20:10:39Z",
+      "prId": "snapie-io#228",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/228",
+      "commitSha": "ad1c82e"
+    },
+    {
+      "at": "2026-10-07T20:11:28.000Z",
+      "prId": "snapie-io#228",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/228"
+    },
+    {
+      "at": "2026-10-07T20:14:59Z",
+      "prId": "snapie-io#220",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "review_approved",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/220"
+    },
+    {
+      "at": "2026-10-07T20:15:22Z",
+      "prId": "snapie-io#220",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/220",
+      "commitSha": "feef6c3"
+    },
+    {
+      "at": "2026-10-07T20:25:05Z",
+      "prId": "snapie-io#231",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/231"
+    },
+    {
+      "at": "2026-10-07T23:21:31Z",
+      "prId": "snapie-io#232",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/232"
+    },
+    {
+      "at": "2026-10-07T23:22:31.000Z",
+      "prId": "snapie-io#232",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/232"
+    },
+    {
+      "at": "2026-10-07T23:27:18Z",
+      "prId": "snapie-io#232",
+      "repo": "snapie-io",
+      "actor": "coderabbitai[bot]",
+      "type": "review_approved",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/232"
+    },
+    {
+      "at": "2026-10-07T23:37:37Z",
+      "prId": "snapie-io#232",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/232",
+      "commitSha": "ebd9680"
+    },
+    {
+      "at": "2026-10-08T00:07:00Z",
+      "prId": "snapie-io#233",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/233"
+    },
+    {
+      "at": "2026-10-08T01:29:58Z",
+      "prId": "snapie-io#233",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/233"
+    },
+    {
+      "at": "2026-10-08T02:16:21Z",
+      "prId": "snapie-io#231",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/231"
+    },
+    {
+      "at": "2026-10-08T06:38:27Z",
+      "prId": "island-1#8",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "gear"
+    },
+    {
+      "at": "2026-10-08T06:39:27.000Z",
+      "prId": "island-1#8",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "gear"
+    },
+    {
+      "at": "2026-10-08T08:09:53Z",
+      "prId": "island-1#8",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "gear"
+    },
+    {
+      "at": "2026-10-08T08:51:00Z",
+      "prId": "island-1#7",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "gear"
+    },
+    {
+      "at": "2026-10-08T08:52:00.000Z",
+      "prId": "island-1#7",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "gear"
+    },
+    {
+      "at": "2026-10-08T09:02:55Z",
+      "prId": "island-1#7",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "gear"
+    },
+    {
+      "at": "2026-10-08T13:06:12Z",
+      "prId": "new-3speak-tv#486",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/486"
+    },
+    {
+      "at": "2026-10-08T13:06:16Z",
+      "prId": "new-3speak-tv#486",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/486",
+      "commitSha": "534f4d6"
+    },
+    {
+      "at": "2026-10-08T13:07:12.000Z",
+      "prId": "new-3speak-tv#486",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/486"
+    },
+    {
+      "at": "2026-10-08T13:07:46Z",
+      "prId": "new-3speak-tv#487",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/487"
+    },
+    {
+      "at": "2026-10-08T13:07:47Z",
+      "prId": "new-3speak-tv#487",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/487"
+    },
+    {
+      "at": "2026-10-08T13:07:49Z",
+      "prId": "new-3speak-tv#487",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/487",
+      "commitSha": "519c6f3"
+    },
+    {
+      "at": "2026-10-08T14:54:18Z",
+      "prId": "snapie-io#233",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/233",
+      "commitSha": "3409cae"
+    },
+    {
+      "at": "2026-10-08T14:54:28Z",
+      "prId": "snapie-io#231",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/231",
+      "commitSha": "4bf3542"
+    },
+    {
+      "at": "2026-10-08T15:05:19Z",
+      "prId": "snapie-io#236",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/236"
+    },
+    {
+      "at": "2026-10-08T15:06:19.000Z",
+      "prId": "snapie-io#236",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/236"
+    },
+    {
+      "at": "2026-10-08T15:14:02Z",
+      "prId": "snapie-io#236",
+      "repo": "snapie-io",
+      "actor": "coderabbitai[bot]",
+      "type": "review_changes_requested",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/236"
+    },
+    {
+      "at": "2026-10-08T15:14:44Z",
+      "prId": "snapie-io#236",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/236",
+      "commitSha": "006479d"
+    },
+    {
+      "at": "2026-10-08T18:17:29Z",
+      "prId": "snapie-io#239",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/239"
+    },
+    {
+      "at": "2026-10-08T18:21:27Z",
+      "prId": "snapie-io#239",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/239"
+    },
+    {
+      "at": "2026-10-08T19:30:29Z",
+      "prId": "snapie-io#242",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/242"
+    },
+    {
+      "at": "2026-10-08T19:33:36Z",
+      "prId": "snapie-io#242",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/242"
+    },
+    {
+      "at": "2026-10-08T19:40:57Z",
+      "prId": "island-1#6",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "gear"
+    },
+    {
+      "at": "2026-10-08T19:41:57.000Z",
+      "prId": "island-1#6",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "gear"
+    },
+    {
+      "at": "2026-10-08T19:42:32Z",
+      "prId": "island-1#6",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "gear"
+    },
+    {
+      "at": "2026-10-08T19:50:42Z",
+      "prId": "snapie-io#221",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/221"
+    },
+    {
+      "at": "2026-10-08T19:58:55Z",
+      "prId": "island-1#5",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "gear"
+    },
+    {
+      "at": "2026-10-08T19:59:55.000Z",
+      "prId": "island-1#5",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "gear"
+    },
+    {
+      "at": "2026-10-08T20:02:25Z",
+      "prId": "island-1#5",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "gear"
+    },
+    {
+      "at": "2026-10-08T20:05:31Z",
+      "prId": "island-1#4",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "bolt"
+    },
+    {
+      "at": "2026-10-08T20:06:31.000Z",
+      "prId": "island-1#4",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "bolt"
+    },
+    {
+      "at": "2026-10-08T20:11:04Z",
+      "prId": "island-1#4",
+      "repo": "island-1",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "bolt"
+    },
+    {
+      "at": "2026-10-08T20:20:16Z",
+      "prId": "snapie-io#244",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/244"
+    },
+    {
+      "at": "2026-10-08T20:23:24Z",
+      "prId": "snapie-io#244",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/244"
+    },
+    {
+      "at": "2026-10-08T20:45:12Z",
+      "prId": "new-3speak-tv#488",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/488"
+    },
+    {
+      "at": "2026-10-08T20:45:21Z",
+      "prId": "new-3speak-tv#488",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/488",
+      "commitSha": "955efd3"
+    },
+    {
+      "at": "2026-10-08T20:46:12.000Z",
+      "prId": "new-3speak-tv#488",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/488"
+    },
+    {
+      "at": "2026-10-08T20:46:25Z",
+      "prId": "new-3speak-tv#489",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/489"
+    },
+    {
+      "at": "2026-10-08T20:46:27Z",
+      "prId": "new-3speak-tv#489",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/489"
+    },
+    {
+      "at": "2026-10-08T20:46:29Z",
+      "prId": "new-3speak-tv#489",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/489",
+      "commitSha": "109476b"
+    },
+    {
+      "at": "2026-10-08T21:22:15Z",
+      "prId": "snapie-io#245",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/245"
+    },
+    {
+      "at": "2026-10-08T21:25:01Z",
+      "prId": "snapie-io#245",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/245"
+    },
+    {
+      "at": "2026-10-08T22:22:33Z",
+      "prId": "snapie-io#246",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/246"
+    },
+    {
+      "at": "2026-10-08T22:23:33.000Z",
+      "prId": "snapie-io#246",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/246"
+    },
+    {
+      "at": "2026-10-08T22:25:45Z",
+      "prId": "snapie-io#246",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/246",
+      "commitSha": "5a6b2b9"
+    },
+    {
+      "at": "2026-10-08T22:49:22Z",
+      "prId": "snapie-io#247",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/247"
+    },
+    {
+      "at": "2026-10-08T22:50:22.000Z",
+      "prId": "snapie-io#247",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/247"
+    },
+    {
+      "at": "2026-10-08T22:51:37Z",
+      "prId": "snapie-io#242",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/242",
+      "commitSha": "ac491fe"
+    },
+    {
+      "at": "2026-10-08T22:51:50Z",
+      "prId": "snapie-io#244",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/244",
+      "commitSha": "0434b7b"
+    },
+    {
+      "at": "2026-10-08T22:52:21Z",
+      "prId": "snapie-io#239",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/239",
+      "commitSha": "73d880c"
+    },
+    {
+      "at": "2026-10-08T22:52:43Z",
+      "prId": "snapie-io#247",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_closed",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/247"
+    },
+    {
+      "at": "2026-10-08T23:04:15Z",
+      "prId": "snapie-io#248",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "gauge",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/248"
+    },
+    {
+      "at": "2026-10-08T23:05:05Z",
+      "prId": "snapie-io#248",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "gauge",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/248",
+      "commitSha": "b56965b"
+    },
+    {
+      "at": "2026-10-08T23:05:15.000Z",
+      "prId": "snapie-io#248",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "gauge",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/248"
+    },
+    {
+      "at": "2026-10-08T23:11:28Z",
+      "prId": "snapie-io#249",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/249"
+    },
+    {
+      "at": "2026-10-08T23:12:28.000Z",
+      "prId": "snapie-io#249",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/249"
+    },
+    {
+      "at": "2026-10-08T23:19:45Z",
+      "prId": "snapie-io#249",
+      "repo": "snapie-io",
+      "actor": "coderabbitai[bot]",
+      "type": "review_changes_requested",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/249"
+    },
+    {
+      "at": "2026-10-08T23:30:06Z",
+      "prId": "snapie-io#249",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/249",
+      "commitSha": "51bbd3e"
+    },
+    {
+      "at": "2026-10-09T00:36:04Z",
+      "prId": "snapie-io#251",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/251"
+    },
+    {
+      "at": "2026-10-09T00:44:05Z",
+      "prId": "snapie-io#221",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/221",
+      "commitSha": "23d27e1"
+    },
+    {
+      "at": "2026-10-09T01:02:52Z",
+      "prId": "snapie-io#245",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/245",
+      "commitSha": "1169b37"
+    },
+    {
+      "at": "2026-10-09T01:29:44Z",
+      "prId": "snapie-io#252",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/252"
+    },
+    {
+      "at": "2026-10-09T01:30:44.000Z",
+      "prId": "snapie-io#252",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/252"
+    },
+    {
+      "at": "2026-10-09T01:34:16Z",
+      "prId": "snapie-io#252",
+      "repo": "snapie-io",
+      "actor": "coderabbitai[bot]",
+      "type": "review_changes_requested",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/252"
+    },
+    {
+      "at": "2026-10-09T01:37:14Z",
+      "prId": "snapie-io#253",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/253"
+    },
+    {
+      "at": "2026-10-09T01:37:21Z",
+      "prId": "snapie-io#254",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/254"
+    },
+    {
+      "at": "2026-10-09T01:40:15Z",
+      "prId": "snapie-io#253",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "spring",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/253"
+    },
+    {
+      "at": "2026-10-09T01:43:01Z",
+      "prId": "snapie-io#254",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/254"
+    },
+    {
+      "at": "2026-10-09T01:43:42Z",
+      "prId": "snapie-io#255",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/255"
+    },
+    {
+      "at": "2026-10-09T01:44:50Z",
+      "prId": "snapie-io#252",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/252",
+      "commitSha": "71e7aae"
+    },
+    {
+      "at": "2026-10-09T01:47:52Z",
+      "prId": "snapie-io#255",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/255"
+    },
+    {
+      "at": "2026-10-09T01:48:25Z",
+      "prId": "snapie-io#256",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_opened",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/256"
+    },
+    {
+      "at": "2026-10-09T02:53:35Z",
+      "prId": "snapie-io#256",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_ready_for_review",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/256"
+    },
+    {
+      "at": "2026-10-09T02:53:38Z",
+      "prId": "snapie-io#255",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/255",
+      "commitSha": "cefa736"
+    },
+    {
+      "at": "2026-10-09T02:53:46Z",
+      "prId": "snapie-io#256",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "bolt",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/256",
+      "commitSha": "bbc36bb"
+    },
+    {
+      "at": "2026-10-09T02:54:02Z",
+      "prId": "snapie-io#254",
+      "repo": "snapie-io",
+      "actor": "hiveuprss",
+      "type": "pr_merged",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/254",
+      "commitSha": "4f42170"
+    },
+    {
+      "at": "2026-10-09T03:08:51Z",
+      "prId": "snapie-io#261",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/261"
+    },
+    {
+      "at": "2026-10-09T03:09:51.000Z",
+      "prId": "snapie-io#261",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/261"
+    },
+    {
+      "at": "2026-10-09T03:13:01Z",
+      "prId": "snapie-io#261",
+      "repo": "snapie-io",
+      "actor": "coderabbitai[bot]",
+      "type": "review_changes_requested",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/261"
+    },
+    {
+      "at": "2026-10-09T03:13:11Z",
+      "prId": "hivesnaps#265",
+      "repo": "hivesnaps",
+      "actor": "menobass",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/hivesnaps/pull/265"
+    },
+    {
+      "at": "2026-10-09T03:14:11.000Z",
+      "prId": "hivesnaps#265",
+      "repo": "hivesnaps",
+      "actor": "menobass",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/hivesnaps/pull/265"
+    },
+    {
+      "at": "2026-10-09T03:17:39Z",
+      "prId": "hivesnaps#265",
+      "repo": "hivesnaps",
+      "actor": "coderabbitai[bot]",
+      "type": "review_changes_requested",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/hivesnaps/pull/265"
+    },
+    {
+      "at": "2026-10-09T03:41:20Z",
+      "prId": "hivesnaps#112",
+      "repo": "hivesnaps",
+      "actor": "menobass",
+      "type": "pr_closed",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/hivesnaps/pull/112"
+    },
+    {
+      "at": "2026-10-09T03:41:44Z",
+      "prId": "hivesnaps#221",
+      "repo": "hivesnaps",
+      "actor": "menobass",
+      "type": "pr_closed",
+      "itemKind": "gear",
+      "prUrl": "https://github.com/Mantequilla-Soft/hivesnaps/pull/221"
+    },
+    {
+      "at": "2026-10-09T13:27:54Z",
+      "prId": "hivesnaps#265",
+      "repo": "hivesnaps",
+      "actor": "coderabbitai[bot]",
+      "type": "review_changes_requested",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/hivesnaps/pull/265"
+    },
+    {
+      "at": "2026-10-09T13:46:23Z",
+      "prId": "snapie-io#261",
+      "repo": "snapie-io",
+      "actor": "menobass",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/snapie-io/pull/261",
+      "commitSha": "194d366"
+    },
+    {
+      "at": "2026-10-09T14:51:33Z",
+      "prId": "new-3speak-tv#490",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/490"
+    },
+    {
+      "at": "2026-10-09T14:51:46Z",
+      "prId": "new-3speak-tv#490",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/490",
+      "commitSha": "fe1d6ff"
+    },
+    {
+      "at": "2026-10-09T14:52:33.000Z",
+      "prId": "new-3speak-tv#490",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/490"
+    },
+    {
+      "at": "2026-10-09T14:54:00Z",
+      "prId": "new-3speak-tv#491",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_opened",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/491"
+    },
+    {
+      "at": "2026-10-09T14:54:01Z",
+      "prId": "new-3speak-tv#491",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_ready_for_review",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/491"
+    },
+    {
+      "at": "2026-10-09T14:54:05Z",
+      "prId": "new-3speak-tv#491",
+      "repo": "new-3speak-tv",
+      "actor": "tibfox",
+      "type": "pr_merged",
+      "itemKind": "nut",
+      "prUrl": "https://github.com/Mantequilla-Soft/new-3speak-tv/pull/491",
+      "commitSha": "3b2c3b4"
+    },
+    {
+      "at": "2026-10-11T16:10:59Z",
+      "prId": "island-1#3",
+      "repo": "island-1",
+      "actor": "dependabot[bot]",
+      "type": "pr_opened",
+      "itemKind": "crate"
+    },
+    {
+      "at": "2026-10-11T16:11:30Z",
+      "prId": "island-1#2",
+      "repo": "island-1",
+      "actor": "dependabot[bot]",
+      "type": "pr_opened",
+      "itemKind": "crate"
+    },
+    {
+      "at": "2026-10-11T16:11:59.000Z",
+      "prId": "island-1#3",
+      "repo": "island-1",
+      "actor": "dependabot[bot]",
+      "type": "pr_ready_for_review",
+      "itemKind": "crate"
+    },
+    {
+      "at": "2026-10-11T16:12:08Z",
+      "prId": "island-1#1",
+      "repo": "island-1",
+      "actor": "dependabot[bot]",
+      "type": "pr_opened",
+      "itemKind": "crate"
+    },
+    {
+      "at": "2026-10-11T16:12:30.000Z",
+      "prId": "island-1#2",
+      "repo": "island-1",
+      "actor": "dependabot[bot]",
+      "type": "pr_ready_for_review",
+      "itemKind": "crate"
+    },
+    {
+      "at": "2026-10-11T16:13:08.000Z",
+      "prId": "island-1#1",
+      "repo": "island-1",
+      "actor": "dependabot[bot]",
+      "type": "pr_ready_for_review",
+      "itemKind": "crate"
+    }
+  ]
+}
