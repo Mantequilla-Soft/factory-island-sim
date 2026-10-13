@@ -223,6 +223,28 @@ export async function collect(o: CollectOptions): Promise<CollectResult> {
     }
   } catch (e) { log(`Skipped issues: ${(e as Error).message}`); }
 
+  // backlog: issues still open at week end, however old — busy waters mean work left to do
+  try {
+    const bq = encodeURIComponent(`user:${org} is:issue is:open created:<${startIso.slice(0, 10)}`);
+    let burl: string | null = `/search/issues?q=${bq}&per_page=100&sort=created&order=desc`;
+    const seen = new Set(rawIssues.map((x) => `${x.repoName}#${x.number}`));
+    let backlog = 0;
+    while (burl && backlog < 120) {
+      const r: { data: { items: IssueItem[] }; next: string | null } = await gh<{ items: IssueItem[] }>(burl);
+      for (const it of r.data.items) {
+        const repoName = it.repository_url.split("/").pop() ?? "";
+        if (it.pull_request || !byName.has(repoName) || seen.has(`${repoName}#${it.number}`)) continue;
+        seen.add(`${repoName}#${it.number}`);
+        const labels = (it.labels ?? []).map((l) => (l.name ?? "").toLowerCase());
+        const kind: IssueKind = labels.some((l) => l.includes("bug")) ? "bug" : labels.some((l) => /enhancement|feature/.test(l)) ? "enhancement" : "task";
+        rawIssues.push({ repoName, number: it.number, actor: addPerson(it.user), kind, openedAt: it.created_at });
+        backlog++;
+      }
+      burl = r.next;
+    }
+    if (backlog) log(`Backlog: ${backlog} still-open issues join the waters.`);
+  } catch (e) { log(`Skipped backlog: ${(e as Error).message}`); }
+
   // choose up to 12 islands (most active first; idle repos fill an empty world)
   const activity = new Map<string, number>();
   rawIssues.forEach((x) => activity.set(x.repoName, (activity.get(x.repoName) ?? 0) + 1));

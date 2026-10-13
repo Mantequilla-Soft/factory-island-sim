@@ -91,7 +91,10 @@ export function compile(s: Snapshot): Compiled {
   const feed = prs.flatMap((p) => p.steps).sort((a, b) => a.at - b.at);
   const islands = layoutIslands(s);
   const isl = new Map(islands.map((i) => [i.id, i]));
-  const issues = (s.issues ?? []).filter((x) => isl.has(x.repo)).map((issue) => {
+  // cap the sea life so huge backlogs don't sink the frame rate; newest first
+  const MAX_CREATURES = 80;
+  const src = [...(s.issues ?? [])].sort((a, b) => b.openedAt.localeCompare(a.openedAt)).slice(0, MAX_CREATURES);
+  const issues = src.filter((x) => isl.has(x.repo)).map((issue) => {
     const I = isl.get(issue.repo)!;
     // park on the sea side of the island, away from the conveyor belt
     const away = Math.atan2(I.center.y - 96, I.center.x - 160);
