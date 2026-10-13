@@ -4,8 +4,8 @@ import type { Snapshot } from "@/sim/types";
 type Row = { id: string; prs: number; merges: number; approvals: number; issues: number; fixes: number; score: number };
 
 /** Live leaderboard, counted up to the current replay moment (realMs). */
-export function Scorecard({ snapshot, realMs, onPick }: { snapshot: Snapshot; realMs: number; onPick?: (id: string) => void }) {
-  const [open, setOpen] = useState(true);
+export function Scorecard({ snapshot, realMs, onPick, className = "", defaultOpen = true }: { snapshot: Snapshot; realMs: number; onPick?: (id: string) => void; className?: string; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
   const [all, setAll] = useState(false);
   const people = useMemo(() => new Map(snapshot.people.map((p) => [p.id, p])), [snapshot]);
   const rows = useMemo(() => {
@@ -29,7 +29,7 @@ export function Scorecard({ snapshot, realMs, onPick }: { snapshot: Snapshot; re
   const shown = all ? rows : rows.slice(0, 5);
 
   return (
-    <section className="border-2 border-border bg-card text-[11px]">
+    <section className={`border-2 border-border bg-card text-[11px] ${className}`}>
       <button onClick={() => setOpen(!open)} aria-expanded={open}
         className="flex w-full justify-between border-b border-border px-3 py-2 text-xs text-primary">
         <span>SCORECARD</span><span>{open ? "−" : "+"}</span>

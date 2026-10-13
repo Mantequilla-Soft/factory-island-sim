@@ -259,6 +259,8 @@ function Index() {
           <div key={fadeKey} className="relative border-4 border-border bg-card duration-500 animate-in fade-in">
             <canvas ref={canvasRef} width={W} height={H} onClick={onClick}
               className="block w-full cursor-pointer" style={{ imageRendering: "pixelated", aspectRatio: `${W}/${H}` }} />
+            <Scorecard snapshot={snapshot} realMs={world.realMs} onPick={pickPerson} defaultOpen={false}
+              className="absolute bottom-2 right-2 z-10 w-72 max-w-[calc(100%-1rem)] bg-card/95 [&_table]:max-h-40" />
             {dragging && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center border-4 border-dashed border-accent bg-background/80 text-sm text-accent">
                 DROP SNAPSHOT JSON TO LOAD
@@ -340,7 +342,6 @@ function Index() {
           <p className="text-xs text-muted-foreground">Click a worker, island, sea monster or boat to inspect it. Drop a snapshot JSON anywhere on the map to load it.</p>
         </section>
         <div className="flex flex-col gap-4">
-        <Scorecard snapshot={snapshot} realMs={world.realMs} onPick={pickPerson} />
         <aside className="flex max-h-[70vh] flex-col border-2 border-border bg-card" aria-live="polite">
           <h2 className="border-b border-border p-3 text-xs text-primary">ACTIVITY FEED</h2>
           <ol className="flex-1 space-y-2 overflow-y-auto p-3 text-xs">
