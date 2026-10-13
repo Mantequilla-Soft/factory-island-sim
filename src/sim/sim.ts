@@ -1,4 +1,4 @@
-import type { ActivityEvent, ItemKind, Snapshot } from "./types";
+import type { ActivityEvent, Issue, IssueKind, ItemKind, Snapshot } from "./types";
 
 export const W = 320;
 export const H = 192;
@@ -68,6 +68,7 @@ export type Compiled = {
   islands: IslandLayout[];
   prs: { prId: string; repo: string; actor: string; kind: ItemKind; station: number; steps: PrStep[] }[];
   feed: PrStep[];
+  issues: { issue: Issue; open: number; close: number | null; angle: number; dist: number }[];
 };
 
 export function compile(s: Snapshot): Compiled {
@@ -88,14 +89,55 @@ export function compile(s: Snapshot): Compiled {
     return { prId, repo: evs[0]!.repo, actor: evs[0]!.actor, kind: evs[0]!.itemKind, station: hash(prId) % 8, steps };
   });
   const feed = prs.flatMap((p) => p.steps).sort((a, b) => a.at - b.at);
-  return { snapshot: s, tl, islands: layoutIslands(s), prs, feed };
+  const islands = layoutIslands(s);
+  const isl = new Map(islands.map((i) => [i.id, i]));
+  const issues = (s.issues ?? []).filter((x) => isl.has(x.repo)).map((issue) => {
+    const I = isl.get(issue.repo)!;
+    // park on the sea side of the island, away from the conveyor belt
+    const away = Math.atan2(I.center.y - 96, I.center.x - 160);
+    const h = hash(issue.id);
+    const open = realToPlay(tl, Date.parse(issue.openedAt));
+    const close = issue.closedAt ? Math.max(open + WALK * 3, realToPlay(tl, Date.parse(issue.closedAt))) : null;
+    return { issue, open, close, angle: away + ((h % 1000) / 1000 - 0.5) * 2.6, dist: 22 + ((h >>> 10) % 9) };
+  });
+  return { snapshot: s, tl, islands, prs, feed, issues };
 }
 
 /* ---------- pure world state ---------- */
 export type WorkerPhase = "fabricating" | "carrying" | "queued" | "stamped" | "delivering" | "returning" | "scrapping" | "rework";
 export type WorkerState = { prId: string; repo: string; slot: number; actor: string; isBot: boolean; kind: ItemKind; pos: Pt; phase: WorkerPhase; carrying: boolean; stamped: boolean; progress: number };
 export type IslandState = { id: string; buildings: number; mergedThisWeek: number; recent: { kind: ItemKind; prId: string }[]; queue: number };
-export type WorldState = { t: number; realMs: number; workers: WorkerState[]; islands: IslandState[]; inspectors: Pt[]; scraps: Pt[]; hidden: number };
+export type CreaturePhase = "arriving" | "active" | "resolving";
+/** Sea life for an issue. k is 0..1 progress through arriving/resolving. */
+export type CreatureState = { id: string; repo: string; kind: IssueKind; pos: Pt; phase: CreaturePhase; k: number; seed: number };
+export type WorldState = { t: number; realMs: number; workers: WorkerState[]; islands: IslandState[]; inspectors: Pt[]; scraps: Pt[]; hidden: number; creatures: CreatureState[] };
+
+export const ISSUE_ENTER = WALK * 2.5;
+export const ISSUE_LEAVE = WALK * 2;
+export function creaturesAt(c: Compiled, t: number): CreatureState[] {
+  const isl = new Map(c.islands.map((i) => [i.id, i]));
+  const out: CreatureState[] = [];
+  for (const x of c.issues) {
+    if (x.open > t) continue;
+    if (x.close !== null && t > x.close + ISSUE_LEAVE) continue;
+    const I = isl.get(x.issue.repo)!;
+    const seed = hash(x.issue.id);
+    const drift = Math.sin(t * 0.7 + seed) * 0.25; // slow patrol around the island
+    const a = x.angle + drift;
+    const home = { x: I.center.x + Math.cos(a) * x.dist, y: I.center.y + Math.sin(a) * x.dist * 0.6 };
+    let phase: CreaturePhase = "active", k = 1, pos = home;
+    if (x.close !== null && t >= x.close) { phase = "resolving"; k = (t - x.close) / ISSUE_LEAVE; }
+    else if (t - x.open < ISSUE_ENTER) { phase = "arriving"; k = (t - x.open) / ISSUE_ENTER; }
+    const isBoat = x.issue.kind !== "bug";
+    if (isBoat && phase !== "active") {
+      // boats sail in from the open sea and back out
+      const far = { x: I.center.x + Math.cos(x.angle) * (x.dist + 60), y: I.center.y + Math.sin(x.angle) * (x.dist + 60) * 0.6 };
+      pos = phase === "arriving" ? lerp(far, home, k) : lerp(home, far, k);
+    }
+    out.push({ id: x.issue.id, repo: x.issue.repo, kind: x.issue.kind, pos, phase, k: Math.max(0, Math.min(1, k)), seed });
+  }
+  return out;
+}
 
 const MAX_WORKERS = 24;
 const lerp = (a: Pt, b: Pt, k: number): Pt => {
@@ -188,7 +230,7 @@ export function stateAt(c: Compiled, t: number): WorldState {
   return {
     t, realMs: playToReal(c.tl, t),
     workers: workers.slice(0, MAX_WORKERS), hidden: Math.max(0, workers.length - MAX_WORKERS),
-    islands: [...islandState.values()], inspectors, scraps,
+    islands: [...islandState.values()], inspectors, scraps, creatures: creaturesAt(c, t),
   };
 }
 
