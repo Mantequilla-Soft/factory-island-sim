@@ -195,8 +195,37 @@ export async function collect(o: CollectOptions): Promise<CollectResult> {
     return ev;
   })).flat();
 
+  // issues: one search, labels only (titles/bodies never read)
+  log("Scanning issues…");
+  type IssueItem = { number: number; user: GhUser | null; created_at: string; closed_at: string | null; repository_url: string; labels?: { name?: string }[]; pull_request?: unknown };
+  const iq = encodeURIComponent(`user:${org} is:issue updated:>=${startIso.slice(0, 10)} created:<${end.toISOString().slice(0, 10)}`);
+  const rawIssues: { repoName: string; number: number; actor: string; kind: IssueKind; openedAt: string; closedAt?: string; closedBy?: string }[] = [];
+  try {
+    let iurl: string | null = `/search/issues?q=${iq}&per_page=100&sort=updated&order=desc`;
+    const items: IssueItem[] = [];
+    while (iurl && items.length < 300) {
+      const r: { data: { items: IssueItem[] }; next: string | null } = await gh<{ items: IssueItem[] }>(iurl);
+      items.push(...r.data.items); iurl = r.next;
+    }
+    for (const it of items.slice(0, maxPrs)) {
+      const repoName = it.repository_url.split("/").pop() ?? "";
+      if (it.pull_request || !byName.has(repoName)) continue;
+      const labels = (it.labels ?? []).map((l) => (l.name ?? "").toLowerCase());
+      const kind: IssueKind = labels.some((l) => l.includes("bug")) ? "bug" : labels.some((l) => /enhancement|feature/.test(l)) ? "enhancement" : "task";
+      const closedIn = inWeek(it.closed_at);
+      if (!inWeek(it.created_at) && !closedIn) continue;
+      let closedBy: string | undefined;
+      // who closed it costs one request per issue, so only with a token
+      if (closedIn && o.token) {
+        try { const d = (await gh<{ closed_by?: GhUser | null }>(`/repos/${org}/${repoName}/issues/${it.number}`)).data; if (d.closed_by) closedBy = addPerson(d.closed_by); } catch { /* optional */ }
+      }
+      rawIssues.push({ repoName, number: it.number, actor: addPerson(it.user), kind, openedAt: inWeek(it.created_at) ? it.created_at : startIso, ...(closedIn ? { closedAt: it.closed_at! } : {}), ...(closedBy ? { closedBy } : {}) });
+    }
+  } catch (e) { log(`Skipped issues: ${(e as Error).message}`); }
+
   // choose up to 12 islands (most active first; idle repos fill an empty world)
   const activity = new Map<string, number>();
+  rawIssues.forEach((x) => activity.set(x.repoName, (activity.get(x.repoName) ?? 0) + 1));
   rawEvents.forEach((e) => activity.set(e.repoName, (activity.get(e.repoName) ?? 0) + 1));
   const chosen = [...repos].sort((a, b) => (activity.get(b.name) ?? 0) - (activity.get(a.name) ?? 0) || a.name.localeCompare(b.name))
     .filter((r, i) => (activity.get(r.name) ?? 0) > 0 || (activity.size === 0 && i < 6)).slice(0, 12);
@@ -230,8 +259,18 @@ export async function collect(o: CollectOptions): Promise<CollectResult> {
     };
     return { at: e.at, prId: prIds.get(key)!, repo: info.id, actor: e.actor, type: e.type, itemKind: e.itemKind, ...link };
   });
-  if (!people.has("ghost") && events.some((e) => e.actor === "ghost")) people.set("ghost", { id: "ghost", displayName: "ghost", isBot: false });
-  const used = new Set(events.map((e) => e.actor));
+  const issueAnon = new Map<string, number>();
+  const issues: Issue[] = rawIssues.filter((x) => repoInfo.has(x.repoName)).map((x) => {
+    const info = repoInfo.get(x.repoName)!;
+    const n = info.anonymized ? (issueAnon.set(info.id, (issueAnon.get(info.id) ?? 0) + 1), issueAnon.get(info.id)!) : x.number;
+    return {
+      id: `${info.id}!${n}`, repo: info.id, actor: x.actor, kind: x.kind, openedAt: x.openedAt,
+      ...(x.closedAt ? { closedAt: x.closedAt } : {}), ...(x.closedBy ? { closedBy: x.closedBy } : {}),
+      ...(info.anonymized ? {} : { url: `https://github.com/${org}/${x.repoName}/issues/${x.number}` }),
+    };
+  });
+  if (!people.has("ghost") && (events.some((e) => e.actor === "ghost") || issues.some((x) => x.actor === "ghost"))) people.set("ghost", { id: "ghost", displayName: "ghost", isBot: false });
+  const used = new Set([...events.map((e) => e.actor), ...issues.flatMap((x) => [x.actor, ...(x.closedBy ? [x.closedBy] : [])])]);
 
   const snapshot = validateSnapshot({
     schemaVersion: 1,
@@ -242,6 +281,7 @@ export async function collect(o: CollectOptions): Promise<CollectResult> {
     repos: [...repoInfo.values()],
     people: [...people.values()].filter((p) => used.has(p.id)),
     events,
+    issues,
   });
   log(`Done: ${events.length} events across ${repoInfo.size} islands (${requests} API requests).`);
   return { snapshot, stats: { requests, repos: repoInfo.size, prs: prIds.size, truncated } };
