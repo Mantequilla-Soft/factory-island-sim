@@ -7,6 +7,7 @@ import type { Snapshot } from "@/sim/types";
 import { ALLOWED_SNAPSHOT_HOSTS, DEFAULT_ORG, SNAPSHOTS_BASE, prNumber } from "@/lib/env";
 import { loadSnapshot } from "@/lib/snapshotSource";
 import { SPEEDS, emit, parentOrigin, parseCommand, type EmbedEvent } from "@/lib/embedProtocol";
+import { Scorecard } from "@/components/Scorecard";
 
 /**
  * Chrome-less player meant to be framed by another site.
@@ -31,12 +32,13 @@ type EmbedSearch = {
   title?: Flag;
   parent?: string;
   demo?: Flag;
+  scorecard?: Flag;
 };
 
 const flag = (v: unknown, fallback: boolean) =>
   v === undefined ? fallback : v === true || v === 1 || v === "1" || v === "true";
 const text = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
-const FLAGS = ["autoplay", "controls", "title", "demo"] as const;
+const FLAGS = ["autoplay", "controls", "title", "demo", "scorecard"] as const;
 const TEXTS = ["snapshot", "org", "week", "parent"] as const;
 
 export const Route = createFileRoute("/embed")({
@@ -291,6 +293,11 @@ function Embed() {
           className="block h-full w-full cursor-pointer"
           style={{ imageRendering: "pixelated", objectFit: "contain" }}
         />
+        {snapshot && world && flag(search.scorecard, true) && (
+          <Scorecard snapshot={snapshot} realMs={world.realMs} defaultOpen={false}
+            onPick={(id) => { const w = world.workers.find((x) => x.actor === id); if (w) { setSelWorker(w.id); setSelIsland(null); } }}
+            className="absolute bottom-2 right-2 z-10 w-72 max-w-[calc(100%-1rem)] bg-card/95" />
+        )}
         {status === "loading" && (
           <p
             role="status"
