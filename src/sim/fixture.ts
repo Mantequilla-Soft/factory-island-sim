@@ -97,6 +97,18 @@ export function makeWeek(o: Opts): Snapshot {
       ...(repo.anonymized ? {} : { url: `https://github.com/Mantequilla-Soft/${repo.name}/issues/${n}` }),
     });
   }
+  // backlog: issues opened before the week and still open — busy waters
+  const nBacklog = Math.round(nIssues * 0.6) + 2;
+  for (let i = 0; i < nBacklog; i++) {
+    const repo = pick(repos);
+    counters[repo.id] = (counters[repo.id] ?? 100 + Math.floor(r() * 200)) + 1;
+    const n = counters[repo.id]!;
+    const opened = weekStart - (2 + r() * 20) * 24 * H; // 2–22 days before the week
+    issues.push({
+      id: `${repo.id}!${n}`, repo: repo.id, actor: pick(humans), kind: pick(ikinds), openedAt: new Date(opened).toISOString(),
+      ...(repo.anonymized ? {} : { url: `https://github.com/Mantequilla-Soft/${repo.name}/issues/${n}` }),
+    });
+  }
   issues.sort((a, b) => a.openedAt.localeCompare(b.openedAt) || a.id.localeCompare(b.id));
   events.sort((a, b) => a.at.localeCompare(b.at) || a.prId.localeCompare(b.prId));
   return {
