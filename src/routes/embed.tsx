@@ -293,9 +293,9 @@ function Embed() {
           className="block h-full w-full cursor-pointer"
           style={{ imageRendering: "pixelated", objectFit: "contain" }}
         />
-        {snapshot && world && flag(search.scorecard, true) && (
+        {snapshot && world && flag(raw.scorecard, true) && (
           <Scorecard snapshot={snapshot} realMs={world.realMs} defaultOpen={false}
-            onPick={(id) => { const w = world.workers.find((x) => x.actor === id); if (w) { setSelWorker(w.id); setSelIsland(null); } }}
+            onPick={(id) => { const w = world.workers.find((x) => x.actor === id); if (w) { setSelWorker(w.prId); setSelIsland(null); } }}
             className="absolute bottom-2 right-2 z-10 w-72 max-w-[calc(100%-1rem)] bg-card/95" />
         )}
         {status === "loading" && (
