@@ -1,4 +1,4 @@
-import type { ActivityEvent, ItemKind, Snapshot } from "./types";
+import type { ActivityEvent, Issue, IssueKind, ItemKind, Snapshot } from "./types";
 
 function rng(seed: number) {
   return () => {
@@ -78,6 +78,26 @@ export function makeWeek(o: Opts): Snapshot {
     t += (0.1 + r() * 3) * H;
     push("pr_merged");
   }
+  // issues: bugs, enhancement boats and plain task boats
+  const issues: Issue[] = [];
+  const nIssues = Math.round(o.prs * 0.4) + 3;
+  const ikinds: IssueKind[] = ["bug", "bug", "enhancement", "task", "task"];
+  for (let i = 0; i < nIssues; i++) {
+    const repo = pick(repos);
+    const actor = pick(humans);
+    const kind = pick(ikinds);
+    counters[repo.id] = (counters[repo.id] ?? 100 + Math.floor(r() * 200)) + 1;
+    const n = counters[repo.id]!;
+    const opened = workTime();
+    const closes = r() < 0.55;
+    const closedAt = opened + (1 + r() * 40) * H;
+    issues.push({
+      id: `${repo.id}!${n}`, repo: repo.id, actor, kind, openedAt: new Date(opened).toISOString(),
+      ...(closes && closedAt < weekStart + 7 * 24 * H - 1000 ? { closedAt: new Date(closedAt).toISOString(), closedBy: pick(humans) } : {}),
+      ...(repo.anonymized ? {} : { url: `https://github.com/Mantequilla-Soft/${repo.name}/issues/${n}` }),
+    });
+  }
+  issues.sort((a, b) => a.openedAt.localeCompare(b.openedAt) || a.id.localeCompare(b.id));
   events.sort((a, b) => a.at.localeCompare(b.at) || a.prId.localeCompare(b.prId));
   return {
     schemaVersion: 1,
@@ -88,6 +108,7 @@ export function makeWeek(o: Opts): Snapshot {
     repos,
     people,
     events,
+    issues,
   };
 }
 

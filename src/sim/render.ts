@@ -1,5 +1,7 @@
 import { stateAt, stationPos, type Compiled, type Pt, type WorldState } from "./sim";
 import type { ItemKind } from "./types";
+import { orgTheme } from "./orgTheme";
+import type { CreatureState } from "./sim";
 
 /* Isometric 2:1 pixel renderer. Sprite colours live here (pixel art), not in CSS tokens. */
 export const RW = 480;
@@ -79,9 +81,15 @@ function disc(cx: number, cy: number, r: number, z: number, seg = 28): [number, 
 }
 
 const GLYPHS: Record<string, string[]> = {
-  B: ["110", "101", "110", "101", "110"], U: ["101", "101", "101", "101", "111"],
-  T: ["111", "010", "010", "010", "010"], E: ["111", "100", "110", "100", "111"],
-  R: ["110", "101", "110", "101", "101"],
+  A: ["010", "101", "111", "101", "101"], B: ["110", "101", "110", "101", "110"], C: ["011", "100", "100", "100", "011"],
+  D: ["110", "101", "101", "101", "110"], E: ["111", "100", "110", "100", "111"], F: ["111", "100", "110", "100", "100"],
+  G: ["011", "100", "101", "101", "011"], H: ["101", "101", "111", "101", "101"], I: ["111", "010", "010", "010", "111"],
+  J: ["001", "001", "001", "101", "010"], K: ["101", "101", "110", "101", "101"], L: ["100", "100", "100", "100", "111"],
+  M: ["101", "111", "111", "101", "101"], N: ["110", "101", "101", "101", "101"], O: ["010", "101", "101", "101", "010"],
+  P: ["110", "101", "110", "100", "100"], Q: ["010", "101", "101", "110", "011"], R: ["110", "101", "110", "101", "101"],
+  S: ["011", "100", "010", "001", "110"], T: ["111", "010", "010", "010", "010"], U: ["101", "101", "101", "101", "111"],
+  V: ["101", "101", "101", "101", "010"], W: ["101", "101", "111", "111", "101"], X: ["101", "101", "010", "101", "101"],
+  Y: ["101", "101", "010", "010", "010"], Z: ["111", "001", "010", "100", "111"],
   "0": ["111", "101", "101", "101", "111"], "1": ["010", "110", "010", "010", "111"],
   "2": ["111", "001", "111", "100", "111"], "3": ["111", "001", "111", "001", "111"],
   "4": ["101", "101", "111", "001", "001"], "5": ["111", "100", "111", "001", "111"],
@@ -191,7 +199,7 @@ function drawBee(ctx: Ctx, sx: number, sy: number, t: number) {
 /* ---------- main draw ---------- */
 type D = { d: number; fn: () => void };
 
-export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | null, selWorker: string | null = null) {
+export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | null, selWorker: string | null = null, selIssue: string | null = null) {
   const t = w.t;
   const geo = islandGeo(c, w);
   const prev = new Map(stateAt(c, Math.max(0, t - 0.06)).workers.map((k) => [k.prId, k.pos]));
@@ -339,32 +347,41 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     });
   });
 
-  // factory: brick tower with sign + chimney (back)
+  // factory: brick tower with sign + chimneys (back), themed per org
+  const th = orgTheme(c.snapshot.org);
   add(-14, -37, () => {
-    box(ctx, -14, -37, 0, 12, 9, 46, P.butter, "#ffa27a");
-    // brick rows
-    for (let z = 4; z < 46; z += 4) for (let x = -26 + ((z / 4) % 2) * 2; x < -2; x += 4) {
-      const [bx, by] = proj(x, -28, z); px(ctx, bx, by, shade(P.butter, 0.85), 2, 1);
+    const TH = th.height;
+    box(ctx, -14, -37, 0, 12, 9, TH, th.main, th.light);
+    for (let z = 4; z < TH; z += 4) for (let x = -26 + ((z / 4) % 2) * 2; x < -2; x += 4) {
+      const [bx, by] = proj(x, -28, z); px(ctx, bx, by, shade(th.main, 0.85), 2, 1);
     }
-    const word = "BUTTER";
+    const word = th.label;
+    const x0 = -14 - (word.length * 4 - 1) / 2;
     for (let li = 0; li < word.length; li++) {
-      const gl = GLYPHS[word[li]!]!;
+      const gl = GLYPHS[word[li]!]; if (!gl) continue;
       for (let gy = 0; gy < 5; gy++) for (let gx = 0; gx < 3; gx++) {
         if (gl[gy]![gx] !== "1") continue;
-        const [sx, sy] = proj(-25.5 + li * 4 + gx, -28, 38 - gy * 2);
-        px(ctx, sx, sy, P.sand, 1, 2);
-        px(ctx, sx, sy + 2, shade(P.butter, 0.55), 1, 1);
+        const [sx, sy] = proj(x0 + li * 4 + gx, -28, TH - 8 - gy * 2);
+        px(ctx, sx, sy, th.sign, 1, 2);
+        px(ctx, sx, sy + 2, th.dark, 1, 1);
       }
     }
-    // windows on side
-    for (let z = 8; z < 30; z += 8) { const [wx, wy] = proj(-2, -40, z); px(ctx, wx, wy, Math.floor(t * 2 + z) % 3 ? P.sand : P.foam, 2, 3); }
-    box(ctx, -8, -42, 46, 2.5, 2.5, 12, P.slate);
-    box(ctx, -8, -42, 58, 3, 3, 1.5, P.red);
-    for (let k = 0; k < 4; k++) {
-      const f = (t * 0.6 + k / 4) % 1;
-      const [sx, sy] = proj(-8 + f * 10, -42 - f * 6, 62 + f * 22);
-      const r = 2 + Math.floor(f * 4);
-      px(ctx, sx - r / 2, sy - r / 2, f > 0.7 ? "#94b0c2" : P.paper, r, r);
+    for (let z = 8; z < TH - 14; z += 8) { const [wx, wy] = proj(-2, -40, z); px(ctx, wx, wy, Math.floor(t * 2 + z) % 3 ? P.sand : P.foam, 2, 3); }
+    // roof
+    if (th.roof === "saw") for (let k = 0; k < 4; k++) box(ctx, -23 + k * 6, -37, TH, 2.5, 8, 3 + (k % 2) * 2, th.dark, th.light);
+    else if (th.roof === "dome") for (let k = 0; k < 4; k++) box(ctx, -14, -37, TH + k * 2, 8 - k * 2, 6 - k * 1.4, 2, th.light);
+    else if (th.roof === "spire") { box(ctx, -14, -37, TH, 4, 4, 6, th.dark); box(ctx, -14, -37, TH + 6, 2, 2, 6, th.light); const [sx, sy] = proj(-14, -37, TH + 12); px(ctx, sx, sy - 5, P.steel, 1, 5); if (Math.floor(t * 2) % 2) px(ctx, sx - 1, sy - 7, P.red, 3, 2); }
+    else box(ctx, -14, -37, TH, 11, 8, 1.5, th.dark);
+    for (let ci = 0; ci < th.chimneys; ci++) {
+      const cx = -8 - ci * 7, cy = -42 + ci * 1;
+      box(ctx, cx, cy, TH, 2.5, 2.5, 12, P.slate);
+      box(ctx, cx, cy, TH + 12, 3, 3, 1.5, P.red);
+      for (let k = 0; k < 4; k++) {
+        const f = (t * 0.6 + k / 4 + ci * 0.33) % 1;
+        const [sx, sy] = proj(cx + f * 10, cy - f * 6, TH + 16 + f * 22);
+        const r = 2 + Math.floor(f * 4);
+        px(ctx, sx - r / 2, sy - r / 2, f > 0.7 ? "#94b0c2" : P.paper, r, r);
+      }
     }
   });
 
@@ -492,6 +509,12 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     });
   }
 
+  // sea life: bugs, enhancement tugboats, task rowboats
+  for (const cr of w.creatures) {
+    const p = toW(cr.pos);
+    add(p.x, p.y, () => drawCreature(ctx, cr, p.x, p.y, t, cr.id === selIssue));
+  }
+
   // crowd badges at piers whose queue overflows
   geo.forEach((g, gi) => {
     const extra = w.islands[gi]!.queue - QUEUE_VISIBLE;
@@ -506,4 +529,63 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
   for (const it of items) it.fn();
 
   if (w.hidden) badge(ctx, `+${w.hidden}`, 16, RH - 14);
+}
+
+/** Screen-space hit test for sea life. */
+export function creatureAt(w: WorldState, sx: number, sy: number): string | null {
+  let best: { id: string; d: number } | null = null;
+  for (const cr of w.creatures) {
+    const p = toW(cr.pos);
+    const [x, y] = proj(p.x, p.y, 0);
+    if (Math.abs(sx - x) <= 8 && sy <= y + 4 && sy >= y - 14) {
+      const d = Math.hypot(sx - x, sy - (y - 4));
+      if (!best || d < best.d) best = { id: cr.id, d };
+    }
+  }
+  return best?.id ?? null;
+}
+
+function drawCreature(ctx: Ctx, cr: CreatureState, wx: number, wy: number, t: number, sel: boolean) {
+  const [x0, y0] = proj(wx, wy, 0);
+  const bob = Math.round(Math.sin(t * 3 + cr.seed) * 1);
+  const x = Math.round(x0), y = Math.round(y0);
+  if (sel) { const on = Math.floor(t * 6) % 2 ? P.foam : P.sand; for (const q of disc(wx, wy, 8, 0, 18)) px(ctx, q[0], q[1], on); }
+  // ripples
+  const rk = Math.floor(t * 3 + cr.seed) % 3;
+  px(ctx, x - 6 - rk, y + 1, P.foam, 2, 1); px(ctx, x + 5 + rk, y + 1, P.foam, 2, 1);
+  if (cr.kind === "bug") {
+    // glitch kraken: surfaces from below, sinks with bubbles when fixed
+    const sink = cr.phase === "arriving" ? Math.round((1 - cr.k) * 8) : cr.phase === "resolving" ? Math.round(cr.k * 8) : 0;
+    const top = y - 9 + bob + sink;
+    ctx.save(); ctx.beginPath(); ctx.rect(x - 8, top - 2, 16, y - top + 2); ctx.clip();
+    const body = cr.seed % 2 ? P.purple : "#7b2f7b";
+    px(ctx, x - 4, top + 2, body, 9, 7); px(ctx, x - 3, top, body, 7, 2); px(ctx, x - 2, top - 1, P.lime, 1, 1); px(ctx, x + 2, top - 1, P.lime, 1, 1);
+    const blink = Math.floor(t * 2 + cr.seed) % 7 === 0;
+    px(ctx, x - 2, top + 3, blink ? body : P.paper, 2, 2); px(ctx, x + 1, top + 3, blink ? body : P.paper, 2, 2);
+    if (!blink) { px(ctx, x - 1, top + 4, P.ink); px(ctx, x + 2, top + 4, P.ink); }
+    px(ctx, x - 1, top + 6, P.red, 3, 1);
+    // tentacles
+    for (const tx of [-5, 5]) { const wv = Math.floor(t * 4 + tx) % 2; px(ctx, x + tx, top + 4 + wv, P.lime, 1, 3); px(ctx, x + tx + Math.sign(tx), top + 3 + wv, P.lime); }
+    // glitch pixels
+    if (Math.floor(t * 9 + cr.seed) % 5 === 0) px(ctx, x + 3, top + 1, P.foam, 2, 1);
+    ctx.restore();
+    if (cr.phase !== "active") for (let k = 0; k < 4; k++) { const f = (t * 1.5 + k / 4) % 1; px(ctx, x - 3 + k * 2, y - 2 - f * 10, P.foam, 1 + (k % 2), 1 + (k % 2)); }
+    return;
+  }
+  const rock = Math.floor(t * 2 + cr.seed) % 2;
+  if (cr.kind === "enhancement") {
+    // cargo tugboat with a smoking stack
+    px(ctx, x - 7, y - 3 + bob, P.ink, 15, 4); px(ctx, x - 6, y - 4 + bob, P.red, 13, 3); px(ctx, x - 6, y - 2 + bob, P.paper, 13, 1);
+    px(ctx, x - 3, y - 9 + bob, P.paper, 6, 5); px(ctx, x - 2, y - 8 + bob, P.cyan, 2, 2); px(ctx, x + 1, y - 8 + bob, P.cyan, 1, 2);
+    px(ctx, x + 3, y - 12 + bob, P.slate, 2, 7); px(ctx, x + 3, y - 12 + bob, P.butter, 2, 1);
+    px(ctx, x - 6, y - 7 + bob + rock, P.wood, 3, 3); px(ctx, x - 6, y - 7 + bob + rock, P.sand, 3, 1); // crate
+    const puffs = cr.phase === "resolving" ? 5 : 3;
+    for (let k = 0; k < puffs; k++) { const f = (t * 0.8 + k / puffs) % 1; const r = 1 + Math.floor(f * 3); px(ctx, x + 3 + f * 6, y - 14 + bob - f * 10, cr.phase === "resolving" ? P.paper : "#94b0c2", r, r); }
+    return;
+  }
+  // task: little rowboat with a scroll, plus a blinking buoy
+  px(ctx, x - 5, y - 2 + bob, P.ink, 11, 3); px(ctx, x - 4, y - 3 + bob, P.wood, 9, 2); px(ctx, x - 4, y - 3 + bob, "#c28553", 9, 1);
+  px(ctx, x - 1, y - 6 + bob, P.paper, 3, 3); px(ctx, x - 1, y - 6 + bob, P.sand, 3, 1);
+  px(ctx, x + 6, y - 4 + rock, P.red, 2, 4); px(ctx, x + 6, y - 2 + rock, P.paper, 2, 1);
+  if (Math.floor(t * 3 + cr.seed) % 2) px(ctx, x + 6, y - 6 + rock, P.sand, 2, 1);
 }

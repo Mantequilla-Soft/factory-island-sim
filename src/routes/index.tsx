@@ -4,7 +4,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FIXTURES } from "@/sim/fixture";
 import { compile, stateAt, DURATION, EVENT_LABEL } from "@/sim/sim";
-import { draw, RW as W, RH as H, screenToWorld, islandGeo, workerAt } from "@/sim/render";
+import { draw, RW as W, RH as H, screenToWorld, islandGeo, workerAt, creatureAt } from "@/sim/render";
+import { orgTheme } from "@/sim/orgTheme";
+import { Scorecard } from "@/components/Scorecard";
 import { validateSnapshot } from "@/sim/validate";
 import { RetroAudio } from "@/sim/audio";
 import type { Snapshot } from "@/sim/types";
@@ -43,6 +45,7 @@ function Index() {
   const [speed, setSpeed] = useState<number>(1);
   const [selected, setSelected] = useState<string | null>(null);
   const [selWorker, setSelWorker] = useState<string | null>(null);
+  const [selIssue, setSelIssue] = useState<string | null>(null);
   const [url, setUrl] = useState("");
   const [loadMsg, setLoadMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -60,7 +63,7 @@ function Index() {
   const loadSnapshot = (s: Snapshot, src: string, label: string) => {
     setPlaying(false);
     setSnapshot(s); setSource(src); setT(0); prevT.current = 0;
-    setSelected(null); setSelWorker(null); setFadeKey((k) => k + 1);
+    setSelected(null); setSelWorker(null); setSelIssue(null); setFadeKey((k) => k + 1);
     setLoadMsg({ ok: true, text: `Loaded ${label}: ${s.events.length} events, ${s.repos.length} repos.` });
   };
   const loadJson = (text: string, src: string, label: string) => {
@@ -121,12 +124,16 @@ function Index() {
       ({ pr_opened: () => a.clink(), pr_ready_for_review: () => a.bleep(), review_changes_requested: () => a.buzz(),
         review_approved: () => a.stamp(), pr_merged: () => a.fanfare(), pr_closed: () => a.splash() })[s.ev.type]();
     }
+    for (const x of compiled.issues) {
+      if (x.open > prev && x.open <= t) a.bleep();
+      if (x.close !== null && x.close > prev && x.close <= t) (x.issue.kind === "bug" ? a.splash() : a.clink());
+    }
   }, [t, playing, compiled]);
 
   useEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
-    if (ctx) { ctx.imageSmoothingEnabled = false; draw(ctx, compiled, world, selected, selWorker); }
-  }, [compiled, world, selected, selWorker]);
+    if (ctx) { ctx.imageSmoothingEnabled = false; draw(ctx, compiled, world, selected, selWorker, selIssue); }
+  }, [compiled, world, selected, selWorker, selIssue]);
 
   const toggleMute = () => {
     if (!audio.current) audio.current = new RetroAudio();
@@ -141,7 +148,10 @@ function Index() {
     const r = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - r.left) / r.width) * W, y = ((e.clientY - r.top) / r.height) * H;
     const wk = workerAt(world, x, y);
-    if (wk) { setSelWorker(wk); setSelected(null); return; }
+    if (wk) { setSelWorker(wk); setSelected(null); setSelIssue(null); return; }
+    const cr = creatureAt(world, x, y);
+    if (cr) { setSelIssue(cr); setSelWorker(null); setSelected(null); return; }
+    setSelIssue(null);
     const p = screenToWorld(x, y);
     const hit = islandGeo(compiled, world).find((g) => Math.hypot(p.x - g.x, p.y - g.y) < g.R + 8);
     setSelected(hit ? hit.id : null);
@@ -149,8 +159,29 @@ function Index() {
   };
 
   const people = new Map(snapshot.people.map((p) => [p.id, p]));
+  const theme = orgTheme(snapshot.org);
+  const title = theme.label === "BUTTER" && snapshot.org.toLowerCase() === "mantequilla-soft" ? "BUTTER FACTORY" : `${snapshot.org.toUpperCase()} FACTORY`;
+  // scorecard pick: spotlight the person's active worker, else their latest PR
+  const pickPerson = (id: string) => {
+    const active = world.workers.find((w) => w.actor === id);
+    const last = [...compiled.prs].filter((p) => p.actor === id && p.steps[0]!.at <= t).pop();
+    const pr = active?.prId ?? last?.prId;
+    if (pr) { setSelWorker(pr); setSelIssue(null); setSelected(null); }
+  };
+  const ISSUE_LABEL = { bug: "bug monster", enhancement: "enhancement tugboat", task: "task rowboat" } as const;
+  const issueFeed = compiled.issues.flatMap((x) => [
+    ...(x.open <= t ? [{ at: x.issue.openedAt, issue: x.issue, closed: false }] : []),
+    ...(x.close !== null && x.close <= t && x.issue.closedAt ? [{ at: x.issue.closedAt, issue: x.issue, closed: true }] : []),
+  ]);
+  const issueNo = (u?: string) => u?.split("/").pop();
+  const iSel = selIssue ? snapshot.issues?.find((x) => x.id === selIssue) : null;
+  const iState = selIssue ? world.creatures.find((c) => c.id === selIssue) : null;
   const repoName = (id: string) => snapshot.repos.find((r) => r.id === id)?.name ?? id;
-  const feed = compiled.feed.filter((s) => s.at <= t).sort((a, b) => b.ev.at.localeCompare(a.ev.at)).slice(0, 40);
+  type FeedItem = { at: string; pr?: (typeof compiled.feed)[number]; iss?: (typeof issueFeed)[number] };
+  const feed: FeedItem[] = [
+    ...compiled.feed.filter((s) => s.at <= t).map((s) => ({ at: s.ev.at, pr: s })),
+    ...issueFeed.map((x) => ({ at: x.at, iss: x })),
+  ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 40);
   const sel = selected ? world.islands.find((i) => i.id === selected) : null;
   const selRepo = selected ? snapshot.repos.find((r) => r.id === selected) : null;
 
@@ -186,7 +217,7 @@ function Index() {
     <main className="min-h-screen bg-background font-mono text-foreground">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4">
         <div>
-          <h1 className="font-display text-lg text-primary">BUTTER FACTORY</h1>
+          <h1 className="font-display text-lg text-primary">{title}</h1>
           <p className="mt-1 text-xs text-muted-foreground">{snapshot.org} · week of {snapshot.weekStart.slice(0, 10)}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -276,6 +307,22 @@ function Index() {
                 )}
               </div>
             )}
+            {iSel && (
+              <div className="absolute left-2 top-2 w-60 border-2 border-accent bg-card p-3 text-xs">
+                <div className="flex justify-between"><b className="text-accent uppercase">{ISSUE_LABEL[iSel.kind]}</b>
+                  <button onClick={() => setSelIssue(null)} aria-label="Close">×</button></div>
+                <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+                  <dt className="text-muted-foreground">Issue</dt><dd>{iSel.url ? `#${issueNo(iSel.url)}` : "hidden"}</dd>
+                  <dt className="text-muted-foreground">Label</dt><dd>{iSel.kind}</dd>
+                  <dt className="text-muted-foreground">Island</dt><dd>{repoName(iSel.repo)}</dd>
+                  <dt className="text-muted-foreground">Opened by</dt><dd>{people.get(iSel.actor)?.displayName ?? iSel.actor}</dd>
+                  <dt className="text-muted-foreground">Opened</dt><dd>{fmt(Date.parse(iSel.openedAt))}</dd>
+                  <dt className="text-muted-foreground">State</dt><dd className="uppercase text-primary">{iState?.phase === "resolving" || (iSel.closedAt && Date.parse(iSel.closedAt) <= world.realMs) ? "closed" : "open"}</dd>
+                  {iSel.closedAt && Date.parse(iSel.closedAt) <= world.realMs && <><dt className="text-muted-foreground">Closed</dt><dd>{fmt(Date.parse(iSel.closedAt))}{iSel.closedBy ? ` by ${people.get(iSel.closedBy)?.displayName ?? iSel.closedBy}` : ""}</dd></>}
+                </dl>
+                {iSel.url && <a href={iSel.url} target="_blank" rel="noopener noreferrer" className="mt-2 block text-accent hover:underline">Open issue #{issueNo(iSel.url)} on GitHub ↗</a>}
+              </div>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-3 border-2 border-border bg-card p-3 text-xs">
             <button onClick={() => { if (t >= DURATION) setT(0); setPlaying(!playing); }}
@@ -290,13 +337,30 @@ function Index() {
               onChange={(e) => setT(Number(e.target.value))} className="min-w-40 flex-1 accent-primary" />
             <span className="tabular-nums text-accent">{fmt(world.realMs)}</span>
           </div>
-          <p className="text-xs text-muted-foreground">Click a worker or island to inspect it. Drop a snapshot JSON anywhere on the map to load it.</p>
+          <p className="text-xs text-muted-foreground">Click a worker, island, sea monster or boat to inspect it. Drop a snapshot JSON anywhere on the map to load it.</p>
         </section>
-        <aside className="flex max-h-[80vh] flex-col border-2 border-border bg-card" aria-live="polite">
+        <div className="flex flex-col gap-4">
+        <Scorecard snapshot={snapshot} realMs={world.realMs} onPick={pickPerson} />
+        <aside className="flex max-h-[70vh] flex-col border-2 border-border bg-card" aria-live="polite">
           <h2 className="border-b border-border p-3 text-xs text-primary">ACTIVITY FEED</h2>
           <ol className="flex-1 space-y-2 overflow-y-auto p-3 text-xs">
             {feed.length === 0 && <li className="text-muted-foreground">Press play to start the week.</li>}
-            {feed.map((s, i) => (
+            {feed.map((f, i) => {
+              if (f.iss) {
+                const x = f.iss.issue;
+                return (
+                  <li key={`${x.id}-${f.iss.closed}-${i}`} className="border-l-2 border-primary pl-2">
+                    <div className="text-muted-foreground">{fmt(Date.parse(f.at))}</div>
+                    <span className="text-success">{people.get(f.iss.closed ? x.closedBy ?? x.actor : x.actor)?.displayName ?? (f.iss.closed ? x.closedBy ?? "someone" : x.actor)}</span>{" "}
+                    <button className="text-left hover:text-accent hover:underline" onClick={() => { setSelIssue(x.id); setSelWorker(null); }}>
+                      {f.iss.closed ? (x.kind === "bug" ? "squashed a" : "sent off a") : "spotted a"} <b>{ISSUE_LABEL[x.kind]}</b>
+                    </button> near {repoName(x.repo)}{" "}
+                    {x.url ? <a href={x.url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">#{issueNo(x.url)}</a> : null}
+                  </li>
+                );
+              }
+              const s = f.pr!;
+              return (
               <li key={`${s.ev.prId}-${s.ev.type}-${i}`} className="border-l-2 border-accent pl-2">
                 <div className="text-muted-foreground">{fmt(Date.parse(s.ev.at))}</div>
                 <button className="text-left text-success hover:underline" onClick={() => setSelWorker(s.ev.prId)}>
@@ -312,9 +376,11 @@ function Index() {
                   <> <a href={commitUrl(s.ev.prUrl, s.ev.commitSha)} target="_blank" rel="noopener noreferrer" className="border border-border px-1 text-primary hover:border-accent">{s.ev.commitSha}</a></>
                 )}
               </li>
-            ))}
+              );
+            })}
           </ol>
         </aside>
+        </div>
       </div>
 
       <CollectorDialog open={collectorOpen} onOpenChange={setCollectorOpen} onLoaded={(s, label) => loadSnapshot(s, "custom", label)} />

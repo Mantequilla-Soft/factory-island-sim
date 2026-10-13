@@ -11,3 +11,4 @@
 
 - Collector logic lives in src/collector/core.ts with relative imports only, shared by the in-app collector and scripts/collector.ts, so browser and GitHub Action produce identical snapshots.
 - Simulation (src/sim) is pure: stateAt(compiled, t) has no hidden state, so scrubbing/replay are exact.
+- Issues live in an optional Snapshot.issues array (not events), so older schemaVersion 1 snapshots still load; sea-life positions come from creaturesAt() inside stateAt to keep scrubbing exact.

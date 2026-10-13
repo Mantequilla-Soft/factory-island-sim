@@ -42,10 +42,22 @@ export function validateSnapshot(v: unknown): Snapshot {
     if (e.prUrl !== undefined && (typeof e.prUrl !== "string" || !/^https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/\d+$/.test(e.prUrl))) fail(`events[${i}].prUrl must be a https://github.com/<org>/<repo>/pull/<n> link.`);
     if (e.commitSha !== undefined && (typeof e.commitSha !== "string" || !/^[0-9a-f]{7,40}$/.test(e.commitSha))) fail(`events[${i}].commitSha must be a hex commit hash.`);
   });
+  if (s.issues !== undefined && !Array.isArray(s.issues)) fail("issues must be an array.");
+  ((s.issues ?? []) as L[]).forEach((x, i) => {
+    if (typeof x.id !== "string") fail(`issues[${i}].id missing.`);
+    if (!["bug", "enhancement", "task"].includes(x.kind as string)) fail(`issues[${i}].kind "${String(x.kind)}" is unknown.`);
+    if (!repoIds.has(x.repo as string)) fail(`issues[${i}].repo "${String(x.repo)}" is not in repos.`);
+    if (!ids.has(x.actor as string)) fail(`issues[${i}].actor "${String(x.actor)}" is not in people.`);
+    if (x.closedBy !== undefined && !ids.has(x.closedBy as string)) fail(`issues[${i}].closedBy "${String(x.closedBy)}" is not in people.`);
+    if (typeof x.openedAt !== "string" || isNaN(Date.parse(x.openedAt))) fail(`issues[${i}].openedAt is not an ISO timestamp.`);
+    if (x.closedAt !== undefined && (typeof x.closedAt !== "string" || isNaN(Date.parse(x.closedAt)))) fail(`issues[${i}].closedAt is not an ISO timestamp.`);
+    if (x.url !== undefined && (typeof x.url !== "string" || !/^https:\/\/github\.com\/[^/]+\/[^/]+\/issues\/\d+$/.test(x.url))) fail(`issues[${i}].url must be a https://github.com/<org>/<repo>/issues/<n> link.`);
+  });
   const snap = {
     ...(s as unknown as Snapshot),
     repos: repos.map((r) => ({ anonymized: false, mergedTotal: 0, ...r })) as Snapshot["repos"],
     people: people.map((p) => ({ isBot: false, ...p })) as Snapshot["people"],
+    ...(s.issues ? { issues: [...(s.issues as NonNullable<Snapshot["issues"]>)].sort((a, b) => a.openedAt.localeCompare(b.openedAt) || a.id.localeCompare(b.id)) } : {}),
     events: [...(s.events as Snapshot["events"])].sort((a, b) => a.at.localeCompare(b.at) || a.prId.localeCompare(b.prId)),
   };
   return snap;
