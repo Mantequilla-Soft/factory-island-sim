@@ -4,7 +4,7 @@
  * Relative imports only so it runs outside the Vite alias setup.
  * Privacy: titles are read only to derive itemKind and are never stored; bodies and branch names are never read.
  */
-import type { ActivityEvent, ItemKind, Person, RepoInfo, Snapshot } from "../sim/types";
+import type { ActivityEvent, Issue, IssueKind, ItemKind, Person, RepoInfo, Snapshot } from "../sim/types";
 import { validateSnapshot } from "../sim/validate";
 
 export type PrivateRepoMode = "anonymize" | "exclude" | "include";
