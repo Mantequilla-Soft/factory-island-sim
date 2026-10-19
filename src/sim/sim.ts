@@ -341,3 +341,13 @@ export const EVENT_LABEL: Record<ActivityEvent["type"], string> = {
   pr_merged: "delivered",
   pr_closed: "scrapped",
 };
+
+/** 0 = full daylight, 1 = deep night, from the replay's real UTC time. Weekends never get fully bright. */
+export function nightAt(realMs: number) {
+  const d = new Date(realMs);
+  const h = d.getUTCHours() + d.getUTCMinutes() / 60;
+  let n = h < 5 ? 1 : h < 8 ? 1 - (h - 5) / 3 : h < 18 ? 0 : h < 22 ? (h - 18) / 4 : 1;
+  const day = d.getUTCDay();
+  if (day === 0 || day === 6) n = Math.max(n, 0.25);
+  return n * n * (3 - 2 * n);
+}

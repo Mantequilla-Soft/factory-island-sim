@@ -1,4 +1,4 @@
-import { stateAt, stationPos, toWorld, islandRadius, type Compiled, type Pt, type WorldState } from "./sim";
+import { stateAt, stationPos, toWorld, islandRadius, nightAt, type Compiled, type Pt, type WorldState } from "./sim";
 import type { ItemKind } from "./types";
 import { orgTheme } from "./orgTheme";
 import type { CreatureState } from "./sim";
@@ -236,6 +236,9 @@ type D = { d: number; fn: () => void };
 
 export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | null, selWorker: string | null = null, selIssue: string | null = null) {
   const t = w.t;
+  const night = nightAt(w.realMs);
+  const glows: [number, number, number][] = []; // light sources drawn after the night tint
+  const beams: [number, number, number][] = [];
   const geo = islandGeo(c, w);
   const prev = new Map(stateAt(c, Math.max(0, t - 0.06)).workers.map((k) => [k.prId, k.pos]));
   const items: D[] = [];
@@ -302,13 +305,25 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     for (const side of [1, -1]) {
       for (let s = s0; s < s1; s += 5) {
         const [rx, ry] = proj(ux * s + nx * side * 1.15, uy * s + ny * side * 1.15, 1);
-        px(ctx, rx, ry, Math.floor(s + t * 6) % 2 ? P.butter : shade(P.butter, 0.7));
+        px(ctx, rx - 1, ry, shade(P.butter, 0.7), 3, 2); px(ctx, rx - 1, ry, P.butter, 3, 1);
+        const spin = Math.floor(t * 12 + s) % 4; // rivet orbits the roller hub
+        px(ctx, rx - 1 + (spin === 1 ? 2 : spin === 3 ? 0 : 1), ry + (spin === 2 ? 1 : 0), P.ink);
       }
       // supports into the sea
       for (let s = s0 + 8; s < s1; s += 14) {
         const [sx2, sy2] = proj(ux * s + nx * side, uy * s + ny * side, -4);
         px(ctx, sx2, sy2, P.slate, 1, 5);
       }
+    }
+    // causeway streetlamp
+    {
+      const s = (s0 + s1) / 2, lx = ux * s - nx * 1.6, ly = uy * s - ny * 1.6;
+      add(lx, ly, () => {
+        const [a1, a2] = proj(lx, ly, 1);
+        px(ctx, a1, a2 - 10, P.slate, 1, 10); px(ctx, a1 - 1, a2 - 11, P.ink, 3, 2);
+        px(ctx, a1 - 1, a2 - 10, night > 0.3 ? "#ffe9a8" : P.sand, 3, 1);
+        if (night > 0.3) glows.push([a1, a2 - 10, 6]);
+      });
     }
     // decorative parcels riding the belt
     for (let k = 0; k < 2; k++) {
@@ -398,6 +413,36 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
         }
       });
     });
+    // landmarks for big islands: a beacon buoy (20+ buildings), then a lighthouse (45+)
+    const away = Math.atan2(g.y, g.x);
+    if (b >= 20) {
+      const bxw = g.x + Math.cos(away - 0.7) * (g.R + 6), byw = g.y + Math.sin(away - 0.7) * (g.R + 6);
+      add(bxw, byw, () => {
+        const [x1, y1] = proj(bxw, byw, 0); const rb = Math.round(Math.sin(t * 2 + gi) * 0.6);
+        px(ctx, x1 - 3, y1, P.foam, 2, 1); px(ctx, x1 + 2, y1, P.foam, 2, 1);
+        px(ctx, x1 - 2, y1 - 5 + rb, P.ink, 5, 5); px(ctx, x1 - 1, y1 - 5 + rb, P.grass, 3, 2); px(ctx, x1 - 1, y1 - 3 + rb, P.paper, 3, 1);
+        px(ctx, x1, y1 - 9 + rb, P.ink, 1, 4);
+        const on = Math.floor(t * 1.2 + gi) % 2;
+        px(ctx, x1 - 1, y1 - 10 + rb, on ? P.lime : shade(P.lime, 0.5), 3, 2);
+        if (on && night > 0.2) glows.push([x1, y1 - 10 + rb, 5]);
+      });
+    }
+    if (b >= 45) {
+      const lxw = g.x + Math.cos(away + 0.9) * (g.R - 4), lyw = g.y + Math.sin(away + 0.9) * (g.R - 4);
+      add(lxw, lyw, () => {
+        for (let k = 0; k < 6; k++) box(ctx, lxw, lyw, k * 3, 2.2 - k * 0.15, 2.2 - k * 0.15, 3, k % 2 ? P.red : P.paper);
+        box(ctx, lxw, lyw, 18, 2.4, 2.4, 1, P.ink);
+        const [l1, l2] = proj(lxw, lyw, 22);
+        px(ctx, l1 - 2, l2 - 2, P.ink, 5, 4); px(ctx, l1 - 1, l2 - 1, night > 0.2 ? "#fff3b0" : P.sand, 3, 2);
+        px(ctx, l1 - 1, l2 - 4, P.red, 3, 2);
+        if (night > 0.2) {
+          glows.push([l1, l2, 7]);
+          // sweeping beam
+          const a = t * 1.4 + gi;
+          for (let r = 4; r < 46; r += 1.5) beams.push([l1 + Math.cos(a) * r, l2 + Math.sin(a) * r * 0.5, 1 - r / 46]);
+        }
+      });
+    }
     // palm-ish tree for small islands
     const tx = g.x - dux * (g.R - 6), ty = g.y - duy * (g.R - 6);
     add(tx, ty, () => {
@@ -426,7 +471,7 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
         px(ctx, sx, sy + 2, th.dark, 1, 1);
       }
     }
-    for (let z = 8; z < TH - 14; z += 8) { const [wx, wy] = proj(-2, -40, z); px(ctx, wx, wy, Math.floor(t * 2 + z) % 3 ? P.sand : P.foam, 2, 3); }
+    for (let z = 8; z < TH - 14; z += 8) { const [wx, wy] = proj(-2, -40, z); px(ctx, wx, wy, night > 0.4 ? "#ffd27a" : Math.floor(t * 2 + z) % 3 ? P.sand : P.foam, 2, 3); if (night > 0.4) glows.push([wx + 1, wy + 1, 4]); }
     // roof
     if (th.roof === "saw") for (let k = 0; k < 4; k++) box(ctx, -23 + k * 6, -37, TH, 2.5, 8, 3 + (k % 2) * 2, th.dark, th.light);
     else if (th.roof === "dome") for (let k = 0; k < 4; k++) box(ctx, -14, -37, TH + k * 2, 8 - k * 2, 6 - k * 1.4, 2, th.light);
@@ -454,6 +499,27 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     }
     const [gx, gy] = proj(36, -33, 8); px(ctx, gx, gy, P.paper, 3, 3); px(ctx, gx + 1 + (Math.floor(t * 3) % 2), gy + 1, P.ink);
   });
+  // recycling furnace: closed PRs end up here
+  const burning = w.scraps.length > 0;
+  add(-40, 0, () => {
+    box(ctx, -40, 0, 0, 4.5, 5.5, 11, "#7a3b3b", "#a0524a");
+    for (let z = 2; z < 11; z += 3) for (let k = -4 + ((z / 3) % 2); k < 5; k += 3) { const [m1, m2] = proj(-40 + 4.5, k, z); px(ctx, m1, m2, "#5a2a2a", 2, 1); }
+    // glowing mouth
+    poly(ctx, [proj(-35.5, -2.5, 1), proj(-35.5, 2.5, 1), proj(-35.5, 2.5, 6), proj(-35.5, -2.5, 6)], P.ink);
+    const fl = Math.floor(t * 10) % 3;
+    const [m1, m2] = proj(-35.5, 0, 3);
+    px(ctx, m1 - 2, m2 - 1, burning ? (fl ? P.butter : P.sand) : "#7a3b3b", 4, 3); if (burning || night > 0.3) px(ctx, m1 - 1, m2, burning ? P.paper : P.butter, 2, 1);
+    if (burning || night > 0.3) glows.push([m1, m2, burning ? 8 : 4]);
+    // hopper + stack
+    box(ctx, -41, -1, 11, 3, 3, 2, P.slate); box(ctx, -42, 2, 11, 1.4, 1.4, 9, P.slate);
+    const puffs = burning ? 5 : 2;
+    for (let k = 0; k < puffs; k++) {
+      const f = (t * (burning ? 1 : 0.4) + k / puffs) % 1, r = 1 + Math.floor(f * 3);
+      const [sx2, sy2] = proj(-42 - f * 6, 2 - f * 4, 21 + f * 16);
+      px(ctx, sx2 - r / 2, sy2 - r / 2, burning ? (f < 0.5 ? P.ink : P.slate) : "#94b0c2", r, r);
+    }
+  });
+
   add(-38, 38, () => { // stacked crates
     box(ctx, -40, 38, 0, 3, 3, 5, P.butter); box(ctx, -34, 40, 0, 3, 3, 5, P.butter); box(ctx, -37, 39, 5, 3, 3, 5, shade(P.butter, 1.1));
   });
@@ -534,7 +600,7 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
       const [hx, hy] = proj(p.x, p.y, 17);
       if (wk.carrying && !working) {
         itemIcon(ctx, wk.kind, hx, hy);
-        if (wk.stamped) { px(ctx, hx + 2, hy - 5, P.grass, 3, 3); px(ctx, hx + 3, hy - 4, P.paper); }
+        if (wk.stamped) sprite(ctx, SEAL, SEAL_PAL, hx + 4, hy - 1);
       }
       if (sel) {
         const [ax, ay] = proj(p.x, p.y, 26 + (Math.floor(t * 4) % 2));
@@ -551,23 +617,49 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     });
   }
 
-  // inspectors at docks
+  // inspectors at docks: Snapie zips down, extends a stamping arm and seals the parcel in gold
   for (const b of w.inspectors) {
     const p = toW(b);
+    const k = Math.max(0, Math.min(1, b.k));
     add(p.x, p.y, () => {
-      const [sx, sy] = proj(p.x, p.y, 22 + Math.sin(t * 6) * 2);
+      const z = k < 0.3 ? 44 - (k / 0.3) * 20 : k < 0.7 ? 24 : 24 + ((k - 0.7) / 0.3) * 22;
+      const [sx, sy] = proj(p.x - 6, p.y + 6, z + Math.sin(t * 8) * 0.8);
+      const [tx2, ty2] = proj(p.x - 6, p.y + 6, 19); // parcel top over the queued worker
+      // arm: extends during the stamp window
+      const ext = k < 0.3 ? 0 : k < 0.45 ? (k - 0.3) / 0.15 : k < 0.6 ? 1 : k < 0.7 ? 1 - (k - 0.6) / 0.1 : 0;
+      if (ext > 0) {
+        const len = Math.round((ty2 - sy - 4) * ext);
+        px(ctx, sx, sy + 3, P.steel, 1, Math.max(1, len)); px(ctx, sx - 1, sy + 3 + len, P.slate, 3, 2);
+      }
+      if (k >= 0.45 && k < 0.62) {
+        sprite(ctx, SEAL, SEAL_PAL, tx2, ty2 + 2);
+        for (let r = 0; r < 6; r++) { const a = (r / 6) * Math.PI * 2 + t * 4; px(ctx, tx2 + Math.cos(a) * 7, ty2 - 2 + Math.sin(a) * 4, r % 2 ? P.sand : P.paper); }
+        glows.push([tx2, ty2 - 2, 6]);
+      }
+      // speed lines while zipping
+      if (k < 0.3 || k > 0.7) for (let r = 1; r < 4; r++) px(ctx, sx - 1 + (r % 2) * 2, sy - 4 - r * 3 * (k < 0.3 ? 1 : -1), P.foam);
       drawBee(ctx, sx, sy, t);
-      if (Math.floor(t * 6) % 2) { px(ctx, sx - 1, sy + 6, P.red, 3, 2); }
     });
   }
-  // scrap splashes
-  for (const s of w.scraps) {
-    const p = toW(s);
+  // closed PRs: a trapdoor opens, the parcel drops, soot puffs up
+  for (const s2 of w.scraps) {
+    const p = toW(s2);
+    const k = Math.max(0, Math.min(1, s2.k));
     add(p.x, p.y, () => {
+      const open = k < 0.15 ? k / 0.15 : k > 0.8 ? (1 - k) / 0.2 : 1;
+      const hw = 3.5 * open;
+      if (hw > 0.3) poly(ctx, [proj(p.x - hw, p.y - hw, 0.2), proj(p.x + hw, p.y - hw, 0.2), proj(p.x + hw, p.y + hw, 0.2), proj(p.x - hw, p.y + hw, 0.2)], P.ink);
       const [sx, sy] = proj(p.x, p.y, 0);
-      const k = Math.floor(t * 8) % 3;
-      px(ctx, sx - 4 - k, sy - 2 - k, P.foam, 2, 1); px(ctx, sx + 3 + k, sy - 3 - k, P.foam, 2, 1);
-      px(ctx, sx - 1, sy - 6 - k * 2, P.paper, 2, 2);
+      if (k < 0.45) { // parcel falling into the hatch
+        const drop = Math.round((k / 0.45) * 10);
+        ctx.save(); ctx.beginPath(); ctx.rect(sx - 8, sy - 30, 16, 30); ctx.clip();
+        px(ctx, sx - 2, sy - 12 + drop, P.ink, 5, 5); px(ctx, sx - 1, sy - 11 + drop, P.butter, 3, 3);
+        ctx.restore();
+      }
+      if (k > 0.3) for (let r = 0; r < 4; r++) {
+        const f = Math.min(1, (k - 0.3) / 0.7 + r * 0.1), sz = 1 + Math.floor(f * 3);
+        px(ctx, sx - 4 + r * 3 - sz / 2, sy - 3 - f * 12 - (r % 2) * 2, r % 2 ? P.slate : P.ink, sz, sz);
+      }
     });
   }
 
@@ -594,6 +686,18 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
 
   items.sort((a, b) => a.d - b.d);
   for (const it of items) it.fn();
+
+  // day / night: tint the whole scene, then let the lights punch through
+  if (night > 0.01) {
+    ctx.fillStyle = `rgba(14,16,44,${(0.55 * night).toFixed(3)})`;
+    ctx.fillRect(0, 0, RW, RH);
+    for (const [bx, by, a] of beams) { ctx.fillStyle = `rgba(255,243,176,${(0.35 * a * night).toFixed(3)})`; ctx.fillRect(Math.round(bx) - 1, Math.round(by), 3, 1); }
+    for (const [gx, gy, r] of glows) {
+      ctx.fillStyle = `rgba(255,205,117,${(0.13 * night).toFixed(3)})`;
+      for (let yy = -r; yy <= r; yy++) { const ww = Math.round(Math.sqrt(r * r - yy * yy)); ctx.fillRect(Math.round(gx) - ww, Math.round(gy) + yy, ww * 2 + 1, 1); }
+      px(ctx, gx, gy, "#ffe9a8", 1, 1);
+    }
+  }
 
   if (w.hidden) badge(ctx, `+${w.hidden}`, 16, RH - 14);
 }
@@ -628,6 +732,8 @@ function sprite(ctx: Ctx, rows: string[], pal: Pal, x: number, y: number, flip =
     }
   }
 }
+const SEAL = ["..kkk..", ".kyyyk.", "kyYwYyk", "kyYYYyk", ".kyyyk.", "..kkk.."];
+const SEAL_PAL: Pal = { k: P.ink, y: "#d9a046", Y: P.sand, w: P.paper };
 const TUG = [
   "...........kk......",
   "..........kssk.....",
