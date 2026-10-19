@@ -5,7 +5,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FIXTURES } from "@/sim/fixture";
 import { compile, stateAt, DURATION, EVENT_LABEL } from "@/sim/sim";
-import { draw, present, clampCam, viewToBase, islandFocus, CAM_HOME, FX_LIFE, RW as W, RH as H, screenToWorld, islandGeo, workerAt, creatureAt, type Cam, type Fx } from "@/sim/render";
+import { islandFocus, RW as W, RH as H, screenToWorld, islandGeo, workerAt, creatureAt } from "@/sim/render";
+import { useWorldCanvas } from "@/hooks/use-world-canvas";
 import { orgTheme } from "@/sim/orgTheme";
 import { Scorecard } from "@/components/Scorecard";
 import { validateSnapshot } from "@/sim/validate";
@@ -131,52 +132,7 @@ function Index() {
     }
   }, [t, playing, compiled]);
 
-  // scene is drawn full-size offscreen, then shown through the camera (island spotlight zoom).
-  // Ripples, honks and the camera are UI toys on wall-clock time; the simulation stays pure.
-  const sceneRef = useRef<HTMLCanvasElement | null>(null);
-  const cam = useRef<Cam>(CAM_HOME);
-  const camTarget = useRef<Cam>(CAM_HOME);
-  const fx = useRef<Fx[]>([]);
-  const raf = useRef(0);
-  const [zoomed, setZoomed] = useState(false);
-  const latest = useRef({ compiled, world, selected, selWorker, selIssue });
-  latest.current = { compiled, world, selected, selWorker, selIssue };
-  const paint = () => {
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx) return;
-    if (!sceneRef.current) { sceneRef.current = document.createElement("canvas"); sceneRef.current.width = W; sceneRef.current.height = H; }
-    const sctx = sceneRef.current.getContext("2d")!;
-    sctx.imageSmoothingEnabled = false;
-    const now = performance.now();
-    fx.current = fx.current.filter((f) => now - f.born < FX_LIFE);
-    const l = latest.current;
-    draw(sctx, l.compiled, l.world, l.selected, l.selWorker, l.selIssue, { fx: fx.current, now });
-    present(ctx, sceneRef.current, cam.current);
-  };
-  const kick = () => {
-    if (raf.current) return;
-    const loop = () => {
-      const c = cam.current, g = camTarget.current;
-      const k = 0.16;
-      const next = { x: c.x + (g.x - c.x) * k, y: c.y + (g.y - c.y) * k, z: c.z + (g.z - c.z) * k };
-      const settled = Math.abs(next.x - g.x) < 0.2 && Math.abs(next.y - g.y) < 0.2 && Math.abs(next.z - g.z) < 0.005;
-      cam.current = settled ? g : clampCam(next);
-      paint();
-      if (!settled || fx.current.length) raf.current = requestAnimationFrame(loop);
-      else raf.current = 0;
-    };
-    raf.current = requestAnimationFrame(loop);
-  };
-  useEffect(() => () => cancelAnimationFrame(raf.current), []);
-  useEffect(() => { paint(); }, [compiled, world, selected, selWorker, selIssue]); // eslint-disable-line react-hooks/exhaustive-deps
-  const zoomTo = (c: Cam) => { camTarget.current = c; setZoomed(c.z > 1); kick(); };
-  const zoomOut = () => zoomTo(CAM_HOME);
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") zoomOut(); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { cam.current = CAM_HOME; camTarget.current = CAM_HOME; setZoomed(false); fx.current = []; }, [compiled]);
+  const { zoomed, zoomTo, zoomOut, addFx, toBase: camToBase } = useWorldCanvas(canvasRef, { compiled, world, selected, selWorker, selIssue });
 
   const toggleMute = () => {
     if (!audio.current) audio.current = new RetroAudio();
@@ -189,7 +145,7 @@ function Index() {
 
   const toBase = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
-    return viewToBase(cam.current, ((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H);
+    return camToBase(((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H);
   };
   const islandHit = (x: number, y: number) => {
     const p = screenToWorld(x, y);
@@ -203,16 +159,15 @@ function Index() {
     if (cr) {
       setSelIssue(cr); setSelWorker(null); setSelected(null);
       const kind = world.creatures.find((c) => c.id === cr)?.kind;
-      if (kind === "bug") { fx.current.push({ kind: "ripple", x, y, born: performance.now() }); audio.current?.bloop(); }
-      else { fx.current.push({ kind: "honk", id: cr, born: performance.now() }); audio.current?.honk(); }
-      kick();
+      if (kind === "bug") { addFx({ kind: "ripple", x, y, born: performance.now() }); audio.current?.bloop(); }
+      else { addFx({ kind: "honk", id: cr, born: performance.now() }); audio.current?.honk(); }
       return;
     }
     setSelIssue(null);
     const hit = islandHit(x, y);
     setSelected(hit ? hit.id : null);
     setSelWorker(null);
-    if (!hit) { fx.current.push({ kind: "ripple", x, y, born: performance.now() }); audio.current?.bloop(); kick(); }
+    if (!hit) { addFx({ kind: "ripple", x, y, born: performance.now() }); audio.current?.bloop(); }
   };
   const onDoubleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const { x, y } = toBase(e);
