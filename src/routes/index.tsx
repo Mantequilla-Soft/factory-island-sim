@@ -9,6 +9,7 @@ import { islandFocus, RW as W, RH as H, screenToWorld, islandGeo, workerAt, crea
 import { useWorldCanvas } from "@/hooks/use-world-canvas";
 import { orgTheme } from "@/sim/orgTheme";
 import { Scorecard } from "@/components/Scorecard";
+import { ZoomControls } from "@/components/ZoomControls";
 import { validateSnapshot } from "@/sim/validate";
 import { RetroAudio } from "@/sim/audio";
 import type { Snapshot } from "@/sim/types";

@@ -217,9 +217,10 @@ function Embed() {
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
-  const { zoomed, zoomTo, zoomOut, addFx, toBase } = useWorldCanvas(canvasRef, { compiled, world, selected: selIsland, selWorker, selIssue: null });
+  const { zoom, zoomed, zoomTo, zoomOut, zoomIn, zoomOutStep, addFx, toBase, consumeDrag } = useWorldCanvas(canvasRef, { compiled, world, selected: selIsland, selWorker, selIssue: null });
 
   const onClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (consumeDrag()) return;
     if (!compiled || !world) return;
     const r = e.currentTarget.getBoundingClientRect();
     // The canvas is letterboxed (object-fit: contain) when the frame's aspect ratio differs
@@ -303,14 +304,10 @@ function Embed() {
               ? `Butter Factory replay of ${snapshot.org}, week of ${snapshot.weekStart.slice(0, 10)}. Click a worker or island for details.`
               : "Butter Factory replay"
           }
-          className="block h-full w-full cursor-pointer"
-          style={{ imageRendering: "pixelated", objectFit: "contain" }}
+          className={`block h-full w-full ${zoomed ? "cursor-grab" : "cursor-pointer"}`}
+          style={{ imageRendering: "pixelated", objectFit: "contain", touchAction: zoomed ? "none" : "auto" }}
         />
-        {zoomed && (
-          <button onClick={zoomOut} className="absolute left-2 top-2 z-10 border-2 border-accent bg-card px-2 py-1 text-[11px] text-accent hover:bg-accent hover:text-accent-foreground">
-            − ZOOM OUT
-          </button>
-        )}
+        {snapshot && <ZoomControls compact zoom={zoom} onIn={zoomIn} onOut={zoomOutStep} onReset={zoomOut} className="absolute left-2 top-2 z-10" />}
         {snapshot && world && flag(raw.scorecard, true) && (
           <Scorecard snapshot={snapshot} realMs={world.realMs} defaultOpen={false}
             onPick={(id) => { const w = world.workers.find((x) => x.actor === id); if (w) { setSelWorker(w.prId); setSelIsland(null); } }}
