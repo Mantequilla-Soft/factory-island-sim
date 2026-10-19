@@ -704,6 +704,9 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     add(p.x - 0.4, p.y - 0.4, () => { // hatch under the worker's feet (after the pier, before the worker)
       const hw = 4 * open;
       if (hw < 0.3) return;
+      const fw = hw + 1.4; // hazard-yellow frame around the hole
+      poly(ctx, [proj(p.x - fw, p.y - fw, 1.2), proj(p.x + fw, p.y - fw, 1.2), proj(p.x + fw, p.y + fw, 1.2), proj(p.x - fw, p.y + fw, 1.2)], P.sand);
+      for (let q = -fw; q < fw; q += 2.5) { const [a1, a2] = proj(p.x + q, p.y + fw - 0.6, 1.2); px(ctx, a1, a2, P.ink, 2, 1); }
       poly(ctx, [proj(p.x - hw, p.y - hw, 1.2), proj(p.x + hw, p.y - hw, 1.2), proj(p.x + hw, p.y + hw, 1.2), proj(p.x - hw, p.y + hw, 1.2)], P.ink);
       poly(ctx, [proj(p.x - hw, p.y - hw, 1.2), proj(p.x + hw, p.y - hw, 1.2), proj(p.x + hw, p.y - hw, 1.2 + 4 * open), proj(p.x - hw, p.y - hw, 1.2 + 4 * open)], P.steel); // lid flipped up
       const [hx2, hy2] = proj(p.x, p.y, 1.2); px(ctx, hx2 - 2, hy2, Math.floor(t * 10) % 2 ? P.butter : P.red, 4, 1); // furnace glow below
