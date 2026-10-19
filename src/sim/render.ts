@@ -701,12 +701,12 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     const p = toW(s2);
     const k = Math.max(0, Math.min(1, s2.k));
     const open = k < 0.15 ? k / 0.15 : k > 0.8 ? (1 - k) / 0.2 : 1;
-    add(p.x - 1, p.y - 1, () => { // hatch under the worker's feet
+    add(p.x - 0.4, p.y - 0.4, () => { // hatch under the worker's feet (after the pier, before the worker)
       const hw = 4 * open;
       if (hw < 0.3) return;
-      poly(ctx, [proj(p.x - hw, p.y - hw, 0.2), proj(p.x + hw, p.y - hw, 0.2), proj(p.x + hw, p.y + hw, 0.2), proj(p.x - hw, p.y + hw, 0.2)], P.ink);
-      poly(ctx, [proj(p.x - hw, p.y - hw, 0.2), proj(p.x + hw, p.y - hw, 0.2), proj(p.x + hw, p.y - hw, 3 * open), proj(p.x - hw, p.y - hw, 3 * open)], P.steel); // lid flipped up
-      const [hx2, hy2] = proj(p.x, p.y, 0); px(ctx, hx2 - 1, hy2 - 1, "#7a3b3b", 3, 1); // furnace glow below
+      poly(ctx, [proj(p.x - hw, p.y - hw, 1.2), proj(p.x + hw, p.y - hw, 1.2), proj(p.x + hw, p.y + hw, 1.2), proj(p.x - hw, p.y + hw, 1.2)], P.ink);
+      poly(ctx, [proj(p.x - hw, p.y - hw, 1.2), proj(p.x + hw, p.y - hw, 1.2), proj(p.x + hw, p.y - hw, 1.2 + 4 * open), proj(p.x - hw, p.y - hw, 1.2 + 4 * open)], P.steel); // lid flipped up
+      const [hx2, hy2] = proj(p.x, p.y, 1.2); px(ctx, hx2 - 2, hy2, Math.floor(t * 10) % 2 ? P.butter : P.red, 4, 1); // furnace glow below
     });
     add(p.x + 2, p.y + 2, () => { // parcel tumbles in, soot billows out
       const [sx, sy] = proj(p.x, p.y, 0);
