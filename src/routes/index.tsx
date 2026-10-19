@@ -9,6 +9,7 @@ import { islandFocus, RW as W, RH as H, screenToWorld, islandGeo, workerAt, crea
 import { useWorldCanvas } from "@/hooks/use-world-canvas";
 import { orgTheme } from "@/sim/orgTheme";
 import { Scorecard } from "@/components/Scorecard";
+import { ZoomControls } from "@/components/ZoomControls";
 import { validateSnapshot } from "@/sim/validate";
 import { RetroAudio } from "@/sim/audio";
 import type { Snapshot } from "@/sim/types";
@@ -132,7 +133,7 @@ function Index() {
     }
   }, [t, playing, compiled]);
 
-  const { zoomed, zoomTo, zoomOut, addFx, toBase: camToBase } = useWorldCanvas(canvasRef, { compiled, world, selected, selWorker, selIssue });
+  const { zoom, zoomed, zoomTo, zoomOut, zoomIn, zoomOutStep, addFx, toBase: camToBase, consumeDrag } = useWorldCanvas(canvasRef, { compiled, world, selected, selWorker, selIssue }, { wheel: "modifier" });
 
   const toggleMute = () => {
     if (!audio.current) audio.current = new RetroAudio();
@@ -152,6 +153,7 @@ function Index() {
     return islandGeo(compiled, world).find((g) => Math.hypot(p.x - g.x, p.y - g.y) < g.R + 8);
   };
   const onClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (consumeDrag()) return;
     const { x, y } = toBase(e);
     const wk = workerAt(world, x, y);
     if (wk) { setSelWorker(wk); setSelected(null); setSelIssue(null); return; }
@@ -279,13 +281,15 @@ function Index() {
           onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) loadFile(f); }}>
           <div key={fadeKey} className="relative border-4 border-border bg-card duration-500 animate-in fade-in">
             <canvas ref={canvasRef} width={W} height={H} onClick={onClick} onDoubleClick={onDoubleClick}
-              className="block w-full cursor-pointer" style={{ imageRendering: "pixelated", aspectRatio: `${W}/${H}` }} />
+              className={`block w-full ${zoomed ? "cursor-grab" : "cursor-pointer"}`}
+              style={{ imageRendering: "pixelated", aspectRatio: `${W}/${H}`, touchAction: zoomed ? "none" : "auto" }} />
             <Scorecard snapshot={snapshot} realMs={world.realMs} onPick={pickPerson} defaultOpen={false}
               className="absolute bottom-2 right-2 z-10 w-72 max-w-[calc(100%-1rem)] bg-card/95 [&_table]:max-h-40" />
+            <ZoomControls zoom={zoom} onIn={zoomIn} onOut={zoomOutStep} onReset={zoomOut} className="absolute bottom-2 left-2 z-10" />
             {zoomed && (
-              <button onClick={zoomOut} className="absolute bottom-2 left-2 z-10 border-2 border-accent bg-card px-3 py-1.5 text-xs text-accent hover:bg-accent hover:text-accent-foreground">
-                − ZOOM OUT
-              </button>
+              <p className="pointer-events-none absolute bottom-2 left-12 z-10 hidden bg-card/80 px-2 py-1 text-[10px] text-muted-foreground sm:block">
+                drag to pan · ctrl+scroll to zoom
+              </p>
             )}
             {dragging && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center border-4 border-dashed border-accent bg-background/80 text-sm text-accent">
