@@ -657,7 +657,7 @@ function drawCreature(ctx: Ctx, cr: CreatureState, wx: number, wy: number, t: nu
   // task rowboat: a rower pulling oars, scroll cargo up front
   px(ctx, x - 8 - rk, y, P.foam, 2, 1); px(ctx, x + 7 + rk, y, P.foam, 2, 1);
   const h = cr.seed;
-  const pal: Pal = { k: P.ink, H: HAIR[h % HAIR.length]!, S: P.skin, c: SHIRTS[(h >> 3) % SHIRTS.length]!, C: shade(SHIRTS[(h >> 3) % SHIRTS.length]!, 0.7),
+  const pal: Pal = { k: P.ink, H: HAIR[h % HAIR.length]!, S: P.skin, c: SHIRTS[(h >>> 3) % SHIRTS.length]!, C: shade(SHIRTS[(h >>> 3) % SHIRTS.length]!, 0.7),
     w: P.paper, y: P.sand, h: "#d99a62", b: P.wood, B: shade(P.wood, 0.7) };
   sprite(ctx, ROWBOAT, pal, x, y + 1 + bob, face < 0);
   const stroke = Math.floor(t * 3 + h) % 2;
