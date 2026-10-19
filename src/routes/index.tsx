@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FIXTURES } from "@/sim/fixture";
 import { compile, stateAt, DURATION, EVENT_LABEL } from "@/sim/sim";
-import { draw, RW as W, RH as H, screenToWorld, islandGeo, workerAt, creatureAt } from "@/sim/render";
+import { draw, present, clampCam, viewToBase, islandFocus, CAM_HOME, FX_LIFE, RW as W, RH as H, screenToWorld, islandGeo, workerAt, creatureAt, type Cam, type Fx } from "@/sim/render";
 import { orgTheme } from "@/sim/orgTheme";
 import { Scorecard } from "@/components/Scorecard";
 import { validateSnapshot } from "@/sim/validate";
@@ -34,6 +34,13 @@ const fmt = (ms: number) => {
   const d = new Date(ms);
   return `${DAYS[d.getUTCDay()]} ${d.getUTCDate()}/${d.getUTCMonth() + 1} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`;
 };
+/** "Floating for 14 days" — how long the issue has been open at the replay's current moment */
+function floating(x: { openedAt: string; closedAt?: string }, nowMs: number) {
+  const end = x.closedAt && Date.parse(x.closedAt) <= nowMs ? Date.parse(x.closedAt) : nowMs;
+  const h = Math.max(0, (end - Date.parse(x.openedAt)) / 3_600_000);
+  const v = h < 1 ? "under an hour" : h < 48 ? `${Math.floor(h)} hour${Math.floor(h) === 1 ? "" : "s"}` : `${Math.floor(h / 24)} days`;
+  return x.closedAt && Date.parse(x.closedAt) <= nowMs ? `${v} (closed)` : `for ${v}`;
+}
 const btn = "border-2 border-border bg-secondary px-3 py-2 text-xs text-secondary-foreground hover:border-accent disabled:opacity-50";
 
 function Index() {
@@ -130,10 +137,52 @@ function Index() {
     }
   }, [t, playing, compiled]);
 
-  useEffect(() => {
+  // scene is drawn full-size offscreen, then shown through the camera (island spotlight zoom).
+  // Ripples, honks and the camera are UI toys on wall-clock time; the simulation stays pure.
+  const sceneRef = useRef<HTMLCanvasElement | null>(null);
+  const cam = useRef<Cam>(CAM_HOME);
+  const camTarget = useRef<Cam>(CAM_HOME);
+  const fx = useRef<Fx[]>([]);
+  const raf = useRef(0);
+  const [zoomed, setZoomed] = useState(false);
+  const latest = useRef({ compiled, world, selected, selWorker, selIssue });
+  latest.current = { compiled, world, selected, selWorker, selIssue };
+  const paint = () => {
     const ctx = canvasRef.current?.getContext("2d");
-    if (ctx) { ctx.imageSmoothingEnabled = false; draw(ctx, compiled, world, selected, selWorker, selIssue); }
-  }, [compiled, world, selected, selWorker, selIssue]);
+    if (!ctx) return;
+    if (!sceneRef.current) { sceneRef.current = document.createElement("canvas"); sceneRef.current.width = W; sceneRef.current.height = H; }
+    const sctx = sceneRef.current.getContext("2d")!;
+    sctx.imageSmoothingEnabled = false;
+    const now = performance.now();
+    fx.current = fx.current.filter((f) => now - f.born < FX_LIFE);
+    const l = latest.current;
+    draw(sctx, l.compiled, l.world, l.selected, l.selWorker, l.selIssue, { fx: fx.current, now });
+    present(ctx, sceneRef.current, cam.current);
+  };
+  const kick = () => {
+    if (raf.current) return;
+    const loop = () => {
+      const c = cam.current, g = camTarget.current;
+      const k = 0.16;
+      const next = { x: c.x + (g.x - c.x) * k, y: c.y + (g.y - c.y) * k, z: c.z + (g.z - c.z) * k };
+      const settled = Math.abs(next.x - g.x) < 0.2 && Math.abs(next.y - g.y) < 0.2 && Math.abs(next.z - g.z) < 0.005;
+      cam.current = settled ? g : clampCam(next);
+      paint();
+      if (!settled || fx.current.length) raf.current = requestAnimationFrame(loop);
+      else raf.current = 0;
+    };
+    raf.current = requestAnimationFrame(loop);
+  };
+  useEffect(() => () => cancelAnimationFrame(raf.current), []);
+  useEffect(() => { paint(); }, [compiled, world, selected, selWorker, selIssue]); // eslint-disable-line react-hooks/exhaustive-deps
+  const zoomTo = (c: Cam) => { camTarget.current = c; setZoomed(c.z > 1); kick(); };
+  const zoomOut = () => zoomTo(CAM_HOME);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") zoomOut(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { cam.current = CAM_HOME; camTarget.current = CAM_HOME; setZoomed(false); fx.current = []; }, [compiled]);
 
   const toggleMute = () => {
     if (!audio.current) audio.current = new RetroAudio();
@@ -144,18 +193,38 @@ function Index() {
   };
   const changeVolume = (v: number) => { setVolume(v); if (audio.current) { audio.current.volume = v; audio.current.apply(); } };
 
-  const onClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const toBase = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width) * W, y = ((e.clientY - r.top) / r.height) * H;
+    return viewToBase(cam.current, ((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H);
+  };
+  const islandHit = (x: number, y: number) => {
+    const p = screenToWorld(x, y);
+    return islandGeo(compiled, world).find((g) => Math.hypot(p.x - g.x, p.y - g.y) < g.R + 8);
+  };
+  const onClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const { x, y } = toBase(e);
     const wk = workerAt(world, x, y);
     if (wk) { setSelWorker(wk); setSelected(null); setSelIssue(null); return; }
     const cr = creatureAt(world, x, y);
-    if (cr) { setSelIssue(cr); setSelWorker(null); setSelected(null); return; }
+    if (cr) {
+      setSelIssue(cr); setSelWorker(null); setSelected(null);
+      const kind = world.creatures.find((c) => c.id === cr)?.kind;
+      if (kind === "bug") { fx.current.push({ kind: "ripple", x, y, born: performance.now() }); audio.current?.bloop(); }
+      else { fx.current.push({ kind: "honk", id: cr, born: performance.now() }); audio.current?.honk(); }
+      kick();
+      return;
+    }
     setSelIssue(null);
-    const p = screenToWorld(x, y);
-    const hit = islandGeo(compiled, world).find((g) => Math.hypot(p.x - g.x, p.y - g.y) < g.R + 8);
+    const hit = islandHit(x, y);
     setSelected(hit ? hit.id : null);
     setSelWorker(null);
+    if (!hit) { fx.current.push({ kind: "ripple", x, y, born: performance.now() }); audio.current?.bloop(); kick(); }
+  };
+  const onDoubleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const { x, y } = toBase(e);
+    const hit = islandHit(x, y);
+    if (hit) { const f = islandFocus(compiled, world, hit.id); if (f) zoomTo(f); }
+    else if (zoomed) zoomOut();
   };
 
   const people = new Map(snapshot.people.map((p) => [p.id, p]));
@@ -257,10 +326,15 @@ function Index() {
           onDragLeave={() => setDragging(false)}
           onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) loadFile(f); }}>
           <div key={fadeKey} className="relative border-4 border-border bg-card duration-500 animate-in fade-in">
-            <canvas ref={canvasRef} width={W} height={H} onClick={onClick}
+            <canvas ref={canvasRef} width={W} height={H} onClick={onClick} onDoubleClick={onDoubleClick}
               className="block w-full cursor-pointer" style={{ imageRendering: "pixelated", aspectRatio: `${W}/${H}` }} />
             <Scorecard snapshot={snapshot} realMs={world.realMs} onPick={pickPerson} defaultOpen={false}
               className="absolute bottom-2 right-2 z-10 w-72 max-w-[calc(100%-1rem)] bg-card/95 [&_table]:max-h-40" />
+            {zoomed && (
+              <button onClick={zoomOut} className="absolute bottom-2 left-2 z-10 border-2 border-accent bg-card px-3 py-1.5 text-xs text-accent hover:bg-accent hover:text-accent-foreground">
+                − ZOOM OUT
+              </button>
+            )}
             {dragging && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center border-4 border-dashed border-accent bg-background/80 text-sm text-accent">
                 DROP SNAPSHOT JSON TO LOAD
@@ -315,7 +389,10 @@ function Index() {
                   <button onClick={() => setSelIssue(null)} aria-label="Close">×</button></div>
                 <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
                   <dt className="text-muted-foreground">Issue</dt><dd>{iSel.url ? `#${issueNo(iSel.url)}` : "hidden"}</dd>
-                  <dt className="text-muted-foreground">Label</dt><dd>{iSel.kind}</dd>
+                  <dt className="text-muted-foreground">Floating</dt><dd className="text-primary">{floating(iSel, world.realMs)}</dd>
+                  <dt className="text-muted-foreground">Labels</dt><dd className="flex flex-wrap gap-1">{(iSel.labels?.length ? iSel.labels : [iSel.kind]).map((l) => (
+                    <span key={l} className="border border-accent bg-secondary px-1 text-[9px] uppercase leading-4 text-accent">{l}</span>))}</dd>
+                  <dt className="text-muted-foreground">Assignee</dt><dd>{iSel.assignee ? people.get(iSel.assignee)?.displayName ?? iSel.assignee : <span className="text-muted-foreground">nobody yet</span>}</dd>
                   <dt className="text-muted-foreground">Island</dt><dd>{repoName(iSel.repo)}</dd>
                   <dt className="text-muted-foreground">Opened by</dt><dd>{people.get(iSel.actor)?.displayName ?? iSel.actor}</dd>
                   <dt className="text-muted-foreground">Opened</dt><dd>{fmt(Date.parse(iSel.openedAt))}</dd>
@@ -339,7 +416,7 @@ function Index() {
               onChange={(e) => setT(Number(e.target.value))} className="min-w-40 flex-1 accent-primary" />
             <span className="tabular-nums text-accent">{fmt(world.realMs)}</span>
           </div>
-          <p className="text-xs text-muted-foreground">Click a worker, island, sea monster or boat to inspect it. Drop a snapshot JSON anywhere on the map to load it.</p>
+          <p className="text-xs text-muted-foreground">Click a worker, island, sea monster or boat to inspect it (boats honk back). Click open water to splash. Double-click an island to zoom in, Esc to zoom out. Drop a snapshot JSON anywhere on the map to load it.</p>
         </section>
         <div className="flex flex-col gap-4">
         <aside className="flex max-h-[70vh] flex-col border-2 border-border bg-card" aria-live="polite">
