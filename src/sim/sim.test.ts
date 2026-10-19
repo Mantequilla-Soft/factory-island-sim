@@ -28,12 +28,16 @@ describe("sea life", () => {
 
   it("tugboats and rowboats actually move around their island", () => {
     const c = compile(FIXTURES[0].make());
-    const a = creaturesAt(c, 50), b = creaturesAt(c, 58);
+    const a = creaturesAt(c, 50);
     const boats = a.filter((x) => x.kind !== "bug" && x.phase === "active");
     expect(boats.length).toBeGreaterThan(0);
     for (const x of boats) {
-      const y = b.find((o) => o.id === x.id);
-      if (y) expect(Math.hypot(x.pos.x - y.pos.x, x.pos.y - y.pos.y)).toBeGreaterThan(1);
+      let moved = 0;
+      for (let t = 51; t <= 60; t++) {
+        const y = creaturesAt(c, t).find((o) => o.id === x.id);
+        if (y) moved = Math.max(moved, Math.hypot(x.pos.x - y.pos.x, x.pos.y - y.pos.y));
+      }
+      expect(moved).toBeGreaterThan(1);
     }
   });
 });
