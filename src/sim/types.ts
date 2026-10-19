@@ -13,8 +13,11 @@ export type Person = { id: string; displayName?: string; avatarUrl?: string; hiv
 export type ActivityEvent = { at: string; prId: string; repo: string; actor: string; type: EventType; itemKind: ItemKind; prUrl?: string; commitSha?: string };
 
 export type IssueKind = "bug" | "enhancement" | "task";
-/** An issue in a repo. No title/body is ever stored. url/number omitted for anonymized repos. closedBy only known when collected with a token. */
-export type Issue = { id: string; repo: string; actor: string; kind: IssueKind; openedAt: string; closedAt?: string; closedBy?: string; url?: string };
+/**
+ * An issue in a repo. No title/body is ever stored. url/number/labels omitted for anonymized repos.
+ * closedBy only known when collected with a token. labels: up to 6 label names; assignee: a person id.
+ */
+export type Issue = { id: string; repo: string; actor: string; kind: IssueKind; openedAt: string; closedAt?: string; closedBy?: string; url?: string; labels?: string[]; assignee?: string };
 
 export type Snapshot = {
   schemaVersion: 1;
