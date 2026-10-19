@@ -247,8 +247,8 @@ function Index() {
   ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 40);
   const sel = selected ? world.islands.find((i) => i.id === selected) : null;
   // keep the island card off the island itself (it would swallow a double-click zoom)
-  const selFocus = selected ? islandFocus(compiled, world, selected, 1) : null;
-  const selOnRight = !!selFocus && selFocus.x > W / 2;
+  const selGeo = selected ? islandGeo(compiled, world).find((g) => g.id === selected) : null;
+  const selOnRight = !!selGeo && selGeo.x - selGeo.y > 0; // iso screen x relative to the centre
   const selRepo = selected ? snapshot.repos.find((r) => r.id === selected) : null;
 
   // worker inspection
