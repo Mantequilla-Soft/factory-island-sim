@@ -262,7 +262,7 @@ function drawRipple(ctx: Ctx, x: number, y: number, age: number) {
   for (let j = 0; j < 3; j++) {
     const a = age - j * 0.16;
     if (a <= 0 || a >= 1) continue;
-    const r = 2 + a * 15, n = Math.max(10, Math.round(r * 2.4));
+    const r = 2 + a * 20, n = Math.max(12, Math.round(r * 2.6));
     const col = a < 0.45 ? P.foam : a < 0.75 ? shade(P.foam, 0.7) : "#4e6fd6";
     for (let k = 0; k < n; k++) {
       if ((k + j) % 3 === 0 && a > 0.5) continue; // break up the ring as it fades
@@ -673,44 +673,52 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
   for (const b of w.inspectors) {
     const p = toW(b);
     const k = Math.max(0, Math.min(1, b.k));
-    add(p.x, p.y, () => {
-      const z = k < 0.3 ? 44 - (k / 0.3) * 20 : k < 0.7 ? 24 : 24 + ((k - 0.7) / 0.3) * 22;
+    add(p.x + 1, p.y + 1, () => {
+      const z = k < 0.3 ? 50 - (k / 0.3) * 18 : k < 0.7 ? 32 : 32 + ((k - 0.7) / 0.3) * 22;
       const [sx, sy] = proj(p.x - 6, p.y + 6, z + Math.sin(t * 8) * 0.8);
       const [tx2, ty2] = proj(p.x - 6, p.y + 6, 19); // parcel top over the queued worker
-      // arm: extends during the stamp window
-      const ext = k < 0.3 ? 0 : k < 0.45 ? (k - 0.3) / 0.15 : k < 0.6 ? 1 : k < 0.7 ? 1 - (k - 0.6) / 0.1 : 0;
-      if (ext > 0) {
-        const len = Math.round((ty2 - sy - 4) * ext);
-        px(ctx, sx, sy + 3, P.steel, 1, Math.max(1, len)); px(ctx, sx - 1, sy + 3 + len, P.slate, 3, 2);
-      }
-      if (k >= 0.45 && k < 0.62) {
-        sprite(ctx, SEAL, SEAL_PAL, tx2, ty2 + 2);
-        for (let r = 0; r < 6; r++) { const a = (r / 6) * Math.PI * 2 + t * 4; px(ctx, tx2 + Math.cos(a) * 7, ty2 - 2 + Math.sin(a) * 4, r % 2 ? P.sand : P.paper); }
-        glows.push([tx2, ty2 - 2, 6]);
-      }
       // speed lines while zipping
       if (k < 0.3 || k > 0.7) for (let r = 1; r < 4; r++) px(ctx, sx - 1 + (r % 2) * 2, sy - 4 - r * 3 * (k < 0.3 ? 1 : -1), P.foam);
       drawBee(ctx, sx, sy, t);
+      // mechanical arm telescopes down during the stamp window
+      const ext = k < 0.3 ? 0 : k < 0.45 ? (k - 0.3) / 0.15 : k < 0.6 ? 1 : k < 0.7 ? 1 - (k - 0.6) / 0.1 : 0;
+      if (ext > 0) {
+        const len = Math.max(1, Math.round((ty2 - sy - 6) * ext));
+        px(ctx, sx, sy + 3, P.ink, 1, len); px(ctx, sx + 1, sy + 3, P.steel, 1, len);
+        for (let j = 4; j < len; j += 4) px(ctx, sx - 1, sy + 3 + j, P.slate, 3, 1); // joints
+        px(ctx, sx - 2, sy + 3 + len, P.ink, 6, 3); px(ctx, sx - 1, sy + 3 + len, "#d9a046", 4, 1);
+      }
+      if (k >= 0.45 && k < 0.66) {
+        sprite(ctx, SEAL, SEAL_PAL, tx2 + 1, ty2 + 3);
+        const burst = (k - 0.45) / 0.21;
+        for (let r = 0; r < 8; r++) { const a = (r / 8) * Math.PI * 2; const d = 5 + burst * 6; px(ctx, tx2 + Math.cos(a) * d, ty2 - 1 + Math.sin(a) * d * 0.6, r % 2 ? P.sand : P.paper); }
+        glows.push([tx2, ty2 - 1, 6]);
+      }
     });
   }
   // closed PRs: a trapdoor opens, the parcel drops, soot puffs up
   for (const s2 of w.scraps) {
     const p = toW(s2);
     const k = Math.max(0, Math.min(1, s2.k));
-    add(p.x, p.y, () => {
-      const open = k < 0.15 ? k / 0.15 : k > 0.8 ? (1 - k) / 0.2 : 1;
-      const hw = 3.5 * open;
-      if (hw > 0.3) poly(ctx, [proj(p.x - hw, p.y - hw, 0.2), proj(p.x + hw, p.y - hw, 0.2), proj(p.x + hw, p.y + hw, 0.2), proj(p.x - hw, p.y + hw, 0.2)], P.ink);
+    const open = k < 0.15 ? k / 0.15 : k > 0.8 ? (1 - k) / 0.2 : 1;
+    add(p.x - 1, p.y - 1, () => { // hatch under the worker's feet
+      const hw = 4 * open;
+      if (hw < 0.3) return;
+      poly(ctx, [proj(p.x - hw, p.y - hw, 0.2), proj(p.x + hw, p.y - hw, 0.2), proj(p.x + hw, p.y + hw, 0.2), proj(p.x - hw, p.y + hw, 0.2)], P.ink);
+      poly(ctx, [proj(p.x - hw, p.y - hw, 0.2), proj(p.x + hw, p.y - hw, 0.2), proj(p.x + hw, p.y - hw, 3 * open), proj(p.x - hw, p.y - hw, 3 * open)], P.steel); // lid flipped up
+      const [hx2, hy2] = proj(p.x, p.y, 0); px(ctx, hx2 - 1, hy2 - 1, "#7a3b3b", 3, 1); // furnace glow below
+    });
+    add(p.x + 2, p.y + 2, () => { // parcel tumbles in, soot billows out
       const [sx, sy] = proj(p.x, p.y, 0);
-      if (k < 0.45) { // parcel falling into the hatch
-        const drop = Math.round((k / 0.45) * 10);
-        ctx.save(); ctx.beginPath(); ctx.rect(sx - 8, sy - 30, 16, 30); ctx.clip();
-        px(ctx, sx - 2, sy - 12 + drop, P.ink, 5, 5); px(ctx, sx - 1, sy - 11 + drop, P.butter, 3, 3);
+      if (k < 0.5) {
+        const drop = Math.round((k / 0.5) * 12);
+        ctx.save(); ctx.beginPath(); ctx.rect(sx - 10, sy - 34, 20, 34); ctx.clip();
+        px(ctx, sx - 3, sy - 15 + drop, P.ink, 7, 6); px(ctx, sx - 2, sy - 14 + drop, P.butter, 5, 4); px(ctx, sx - 2, sy - 12 + drop, P.sand, 5, 1);
         ctx.restore();
       }
-      if (k > 0.3) for (let r = 0; r < 4; r++) {
-        const f = Math.min(1, (k - 0.3) / 0.7 + r * 0.1), sz = 1 + Math.floor(f * 3);
-        px(ctx, sx - 4 + r * 3 - sz / 2, sy - 3 - f * 12 - (r % 2) * 2, r % 2 ? P.slate : P.ink, sz, sz);
+      if (k > 0.35) for (let r = 0; r < 5; r++) {
+        const f = Math.min(1, (k - 0.35) / 0.65 + r * 0.08), sz = 1 + Math.floor(f * 4);
+        px(ctx, sx - 6 + r * 3 - sz / 2, sy - 4 - f * 16 - (r % 2) * 3, r % 2 ? P.slate : P.ink, sz, sz);
       }
     });
   }
