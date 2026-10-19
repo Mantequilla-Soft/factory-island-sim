@@ -41,3 +41,14 @@ describe("sea life", () => {
     }
   });
 });
+
+describe("day and night", async () => {
+  const { nightAt } = await import("./sim");
+  it("weekday 03:00 UTC is full night, 13:00 UTC is full day", () => {
+    expect(nightAt(Date.parse("2026-09-29T03:00:00Z"))).toBe(1);
+    expect(nightAt(Date.parse("2026-09-29T13:00:00Z"))).toBe(0);
+  });
+  it("weekend afternoons stay a little dim", () => {
+    expect(nightAt(Date.parse("2026-10-03T13:00:00Z"))).toBeGreaterThan(0);
+  });
+});
