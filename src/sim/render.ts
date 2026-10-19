@@ -734,7 +734,7 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     if (cr.kind !== "bug") items.push({ d: -1e6, fn: () => drawWake(ctx, cr, t) });
     if (cr.anchor) { const a = toW(cr.anchor); add(a.x, a.y, () => drawBuoy(ctx, a.x, a.y, t, cr.seed)); }
     const honk = cr.kind === "enhancement" && tugs.some((o) => o.id !== cr.id && Math.hypot(toW(o.pos).x - p.x, toW(o.pos).y - p.y) < 18);
-    add(p.x, p.y, () => drawCreature(ctx, cr, p.x, p.y, t, cr.id === selIssue, honk));
+    add(p.x, p.y, () => drawCreature(ctx, cr, p.x, p.y, t, cr.id === selIssue, honk, night, glows));
   }
 
   // toy ripples sit on the water under everything
@@ -857,6 +857,7 @@ const TUG_PAL: Pal = {
   k: P.ink, s: P.slate, S: shade(P.slate, 0.7), o: P.butter, w: P.paper, c: P.cyan, g: "#94b0c2",
   b: P.wood, l: "#c28553", h: shade(P.red, 1.3), R: shade(P.red, 0.75), r: P.red,
 };
+const TUG_PAL_NIGHT: Pal = { ...TUG_PAL, c: "#ffd27a" };
 const screenVel = (v: Pt) => ({ x: v.x - v.y, y: (v.x + v.y) / 2 });
 
 /** 3-step fading foam wake behind a moving boat, plus stern churn. */
@@ -887,7 +888,7 @@ function drawBuoy(ctx: Ctx, wx: number, wy: number, t: number, seed: number) {
   if (Math.floor(t * 1.5 + seed) % 2) { px(ctx, x - 1, y - 9, P.sand, 3, 2); px(ctx, x, y - 10, P.paper); }
 }
 
-function drawCreature(ctx: Ctx, cr: CreatureState, wx: number, wy: number, t: number, sel: boolean, honk: boolean) {
+function drawCreature(ctx: Ctx, cr: CreatureState, wx: number, wy: number, t: number, sel: boolean, honk: boolean, night = 0, glows: [number, number, number][] = []) {
   const [x0, y0] = proj(wx, wy, 0);
   const bob = Math.round(Math.sin(t * 3 + cr.seed) * 0.8);
   const x = Math.round(x0), y = Math.round(y0);
@@ -899,7 +900,8 @@ function drawCreature(ctx: Ctx, cr: CreatureState, wx: number, wy: number, t: nu
   const rk = Math.floor(t * 3 + cr.seed) % 3;
   if (cr.kind === "enhancement") {
     px(ctx, x - 10 - rk, y, P.foam, 2, 1); px(ctx, x + 9 + rk, y, P.foam, 2, 1);
-    sprite(ctx, TUG, TUG_PAL, x, y + 1 + bob, face < 0);
+    sprite(ctx, TUG, night > 0.4 ? TUG_PAL_NIGHT : TUG_PAL, x, y + 1 + bob, face < 0);
+    if (night > 0.4) glows.push([x, y - 8 + bob, 4]);
     // steam from the stack (drifts aft)
     const sx = x + face * 2, puffs = cr.phase === "resolving" ? 5 : 3;
     for (let k = 0; k < puffs; k++) {

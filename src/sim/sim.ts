@@ -187,7 +187,7 @@ function creatureWorld(c: Compiled, x: Compiled["issues"][number], I: IslandCtx,
     const a0 = at(ang, r);
     anchor = keepInWater(a0, isl);
     const dir = seed % 2 ? 1 : -1, w = 0.5 + (seed % 5) * 0.06;
-    p = { x: anchor.x + Math.cos(w * t * dir + ph) * 6, y: anchor.y + Math.sin(w * t * dir + ph) * 6 };
+    p = { x: anchor.x + Math.cos(w * t * dir + ph) * 8, y: anchor.y + Math.sin(w * t * dir + ph) * 8 };
   } else {
     // bug monster: skulks slowly, darts in sudden lunges, dives under now and then
     const Pd = 5 + (seed % 4), kk = Math.floor((t + ph) / Pd), u = ((t + ph) % Pd) / Pd;
