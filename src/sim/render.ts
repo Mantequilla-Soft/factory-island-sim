@@ -673,7 +673,7 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
   for (const b of w.inspectors) {
     const p = toW(b);
     const k = Math.max(0, Math.min(1, b.k));
-    add(p.x + 1, p.y + 1, () => {
+    add(p.x + 14, p.y + 14, () => { // in front of the queued worker so the seal lands on the parcel
       const z = k < 0.3 ? 50 - (k / 0.3) * 18 : k < 0.7 ? 32 : 32 + ((k - 0.7) / 0.3) * 22;
       const [sx, sy] = proj(p.x - 6, p.y + 6, z + Math.sin(t * 8) * 0.8);
       const [tx2, ty2] = proj(p.x - 6, p.y + 6, 19); // parcel top over the queued worker
