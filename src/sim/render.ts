@@ -415,8 +415,11 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     });
     // landmarks for big islands: a beacon buoy (20+ buildings), then a lighthouse (45+)
     const away = Math.atan2(g.y, g.x);
+    // put landmarks on the seaward side that faces the viewer so buildings don't hide them
+    const fr = (a: number) => Math.cos(a) + Math.sin(a);
+    const [la, ba] = fr(away + 0.9) >= fr(away - 0.9) ? [away + 0.9, away - 0.5] : [away - 0.9, away + 0.5];
     if (b >= 20) {
-      const bxw = g.x + Math.cos(away - 0.7) * (g.R + 6), byw = g.y + Math.sin(away - 0.7) * (g.R + 6);
+      const bxw = g.x + Math.cos(ba) * (g.R + 6), byw = g.y + Math.sin(ba) * (g.R + 6);
       add(bxw, byw, () => {
         const [x1, y1] = proj(bxw, byw, 0); const rb = Math.round(Math.sin(t * 2 + gi) * 0.6);
         px(ctx, x1 - 3, y1, P.foam, 2, 1); px(ctx, x1 + 2, y1, P.foam, 2, 1);
@@ -428,7 +431,7 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
       });
     }
     if (b >= 45) {
-      const lxw = g.x + Math.cos(away + 0.9) * (g.R - 4), lyw = g.y + Math.sin(away + 0.9) * (g.R - 4);
+      const lxw = g.x + Math.cos(la) * (g.R - 3), lyw = g.y + Math.sin(la) * (g.R - 3);
       add(lxw, lyw, () => {
         for (let k = 0; k < 6; k++) box(ctx, lxw, lyw, k * 3, 2.2 - k * 0.15, 2.2 - k * 0.15, 3, k % 2 ? P.red : P.paper);
         box(ctx, lxw, lyw, 18, 2.4, 2.4, 1, P.ink);
@@ -692,10 +695,16 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     ctx.fillStyle = `rgba(14,16,44,${(0.55 * night).toFixed(3)})`;
     ctx.fillRect(0, 0, RW, RH);
     for (const [bx, by, a] of beams) { ctx.fillStyle = `rgba(255,243,176,${(0.35 * a * night).toFixed(3)})`; ctx.fillRect(Math.round(bx) - 1, Math.round(by), 3, 1); }
+    // dithered warm halos: a checkerboard of light pixels reads as glow without greying the scene
     for (const [gx, gy, r] of glows) {
-      ctx.fillStyle = `rgba(255,205,117,${(0.13 * night).toFixed(3)})`;
-      for (let yy = -r; yy <= r; yy++) { const ww = Math.round(Math.sqrt(r * r - yy * yy)); ctx.fillRect(Math.round(gx) - ww, Math.round(gy) + yy, ww * 2 + 1, 1); }
-      px(ctx, gx, gy, "#ffe9a8", 1, 1);
+      const cx2 = Math.round(gx), cy2 = Math.round(gy);
+      for (let yy = -r; yy <= r; yy++) for (let xx = -r; xx <= r; xx++) {
+        const d = Math.hypot(xx, yy * 1.4);
+        if (d > r || (xx + yy) % 2) continue;
+        ctx.fillStyle = d < r * 0.45 ? `rgba(255,214,120,${(0.55 * night).toFixed(3)})` : `rgba(255,170,60,${(0.28 * night * (1 - d / r)).toFixed(3)})`;
+        ctx.fillRect(cx2 + xx, cy2 + yy, 1, 1);
+      }
+      px(ctx, cx2, cy2, "#fff3c4", 1, 1);
     }
   }
 
