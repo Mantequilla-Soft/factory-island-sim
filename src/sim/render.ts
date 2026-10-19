@@ -1,4 +1,4 @@
-import { stateAt, stationPos, type Compiled, type Pt, type WorldState } from "./sim";
+import { stateAt, stationPos, toWorld, islandRadius, type Compiled, type Pt, type WorldState } from "./sim";
 import type { ItemKind } from "./types";
 import { orgTheme } from "./orgTheme";
 import type { CreatureState } from "./sim";
@@ -37,7 +37,7 @@ const SHIRTS = [P.butter, P.grass, P.cyan, P.red, P.purple, P.lime, P.sand, P.pa
 const HAIR = [P.ink, P.wood, P.sand, P.red, P.slate];
 
 /** sim (top-down) coords -> isometric world units (centred on the factory) */
-export const toW = (p: Pt) => ({ x: p.x - 160, y: (p.y - 96) * 1.75 });
+export const toW = toWorld;
 export const proj = (x: number, y: number, z = 0): [number, number] => [CX + (x - y), CY + (x + y) / 2 - z];
 export function screenToWorld(sx: number, sy: number) {
   const a = sx - CX, b = (sy - CY) * 2;
@@ -95,7 +95,7 @@ const GLYPHS: Record<string, string[]> = {
   "4": ["101", "101", "111", "001", "001"], "5": ["111", "100", "111", "001", "111"],
   "6": ["111", "100", "111", "101", "111"], "7": ["111", "001", "010", "010", "010"],
   "8": ["111", "101", "111", "101", "111"], "9": ["111", "101", "111", "001", "111"],
-  "+": ["000", "010", "111", "010", "000"],
+  "+": ["000", "010", "111", "010", "000"], "!": ["010", "010", "010", "000", "010"],
 };
 function pixText(ctx: Ctx, str: string, x: number, y: number, col: string) {
   ctx.fillStyle = col;
@@ -151,7 +151,7 @@ export type IslandGeo = { id: string; x: number; y: number; dock: { x: number; y
 export function islandGeo(c: Compiled, w: WorldState): IslandGeo[] {
   return c.islands.map((I, i) => {
     const b = w.islands[i]!.buildings;
-    return { id: I.id, ...toW(I.center), dock: toW(I.dock), R: Math.min(30, 17 + Math.sqrt(b) * 1.4) };
+    return { id: I.id, ...toW(I.center), dock: toW(I.dock), R: islandRadius(b) };
   });
 }
 
@@ -510,9 +510,14 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
   }
 
   // sea life: bugs, enhancement tugboats, task rowboats
+  const tugs = w.creatures.filter((cr) => cr.kind === "enhancement" && cr.phase === "active");
   for (const cr of w.creatures) {
     const p = toW(cr.pos);
-    add(p.x, p.y, () => drawCreature(ctx, cr, p.x, p.y, t, cr.id === selIssue));
+    // wakes go on the water first so every boat sits on top of any wake
+    if (cr.kind !== "bug") items.push({ d: -1e6, fn: () => drawWake(ctx, cr, t) });
+    if (cr.anchor) { const a = toW(cr.anchor); add(a.x, a.y, () => drawBuoy(ctx, a.x, a.y, t, cr.seed)); }
+    const honk = cr.kind === "enhancement" && tugs.some((o) => o.id !== cr.id && Math.hypot(toW(o.pos).x - p.x, toW(o.pos).y - p.y) < 18);
+    add(p.x, p.y, () => drawCreature(ctx, cr, p.x, p.y, t, cr.id === selIssue, honk));
   }
 
   // crowd badges at piers whose queue overflows
@@ -545,47 +550,176 @@ export function creatureAt(w: WorldState, sx: number, sy: number): string | null
   return best?.id ?? null;
 }
 
-function drawCreature(ctx: Ctx, cr: CreatureState, wx: number, wy: number, t: number, sel: boolean) {
+/* ---------- sprites ---------- */
+type Pal = Record<string, string>;
+/** Draw a pixel sprite anchored at its bottom-centre; '.' is transparent. */
+function sprite(ctx: Ctx, rows: string[], pal: Pal, x: number, y: number, flip = false) {
+  const h = rows.length, w = rows[0]!.length;
+  const x0 = Math.round(x - w / 2), y0 = Math.round(y - h);
+  for (let r = 0; r < h; r++) {
+    const row = rows[r]!;
+    for (let c = 0; c < w; c++) {
+      const ch = row[flip ? w - 1 - c : c]!;
+      if (ch === ".") continue;
+      const col = pal[ch]; if (!col) continue;
+      ctx.fillStyle = col; ctx.fillRect(x0 + c, y0 + r, 1, 1);
+    }
+  }
+}
+const TUG = [
+  "...........kk......",
+  "..........kssk.....",
+  "..........kook.....",
+  "..........kSsk.....",
+  ".....kkkkkkkkkk....",
+  ".....kwwwwwwwwk....",
+  ".....kwccwwccwk....",
+  ".kkkkkwccwwccwk....",
+  ".kblbkwwwwwwwgk..kk",
+  ".kbbbkggggggggk.khk",
+  "kkkkkkkkkkkkkkkkkhk",
+  "khhhhhhhhhhhhhhhhhk",
+  ".kwwwwwwwwwwwwwwwk.",
+  "..kRRRRRRRRRRRRRk..",
+  "...kkkkkkkkkkkkk...",
+];
+const ROWBOAT = [
+  ".....kk........",
+  "....kHHk.......",
+  "....kSSk.......",
+  "...kcccck.kk...",
+  "...kcCcck.kwk..",
+  "kkkkkkkkkkkykkk",
+  "khhhhhhhhhhhhhk",
+  ".kbbbbbbbbbbbk.",
+  "..kBBBBBBBBBk..",
+  "...kkkkkkkkk...",
+];
+const TUG_PAL: Pal = {
+  k: P.ink, s: P.slate, S: shade(P.slate, 0.7), o: P.butter, w: P.paper, c: P.cyan, g: "#94b0c2",
+  b: P.wood, l: "#c28553", h: shade(P.red, 1.3), R: shade(P.red, 0.75), r: P.red,
+};
+const screenVel = (v: Pt) => ({ x: v.x - v.y, y: (v.x + v.y) / 2 });
+
+/** 3-step fading foam wake behind a moving boat, plus stern churn. */
+function drawWake(ctx: Ctx, cr: CreatureState, t: number) {
+  const sv = screenVel(cr.vel);
+  const sp = Math.hypot(sv.x, sv.y);
+  if (sp < 1.2) return;
+  const nx = -sv.y / sp, ny = sv.x / sp;
+  const cols = [P.foam, shade(P.foam, 0.7), "#4e6fd6"];
+  cr.trail.forEach((q, i) => {
+    const w = toW(q); const [x, y] = proj(w.x, w.y, 0);
+    const spread = 2 + i * 2.2;
+    px(ctx, x + nx * spread, y + ny * spread * 0.6, cols[i]!, i < 2 ? 2 : 1, 1);
+    px(ctx, x - nx * spread, y - ny * spread * 0.6, cols[i]!, i < 2 ? 2 : 1, 1);
+  });
+  const p = toW(cr.pos); const [x, y] = proj(p.x, p.y, 0);
+  const bx = x - (sv.x / sp) * 9, by = y - (sv.y / sp) * 4;
+  const f = Math.floor(t * 10 + cr.seed) % 3;
+  px(ctx, bx - 1 + f, by, P.paper); px(ctx, bx + 1 - f, by + 1, P.foam, 2, 1);
+}
+
+function drawBuoy(ctx: Ctx, wx: number, wy: number, t: number, seed: number) {
   const [x0, y0] = proj(wx, wy, 0);
-  const bob = Math.round(Math.sin(t * 3 + cr.seed) * 1);
+  const x = Math.round(x0), y = Math.round(y0) + Math.round(Math.sin(t * 2.4 + seed) * 0.6);
+  px(ctx, x - 3, y, shade(P.foam, 0.8), 2, 1); px(ctx, x + 2, y, shade(P.foam, 0.8), 2, 1);
+  px(ctx, x - 2, y - 4, P.ink, 5, 4); px(ctx, x - 1, y - 4, P.red, 3, 1); px(ctx, x - 1, y - 3, P.paper, 3, 1); px(ctx, x - 1, y - 2, P.red, 3, 1);
+  px(ctx, x, y - 7, P.ink, 1, 3);
+  if (Math.floor(t * 1.5 + seed) % 2) { px(ctx, x - 1, y - 9, P.sand, 3, 2); px(ctx, x, y - 10, P.paper); }
+}
+
+function drawCreature(ctx: Ctx, cr: CreatureState, wx: number, wy: number, t: number, sel: boolean, honk: boolean) {
+  const [x0, y0] = proj(wx, wy, 0);
+  const bob = Math.round(Math.sin(t * 3 + cr.seed) * 0.8);
   const x = Math.round(x0), y = Math.round(y0);
-  if (sel) { const on = Math.floor(t * 6) % 2 ? P.foam : P.sand; for (const q of disc(wx, wy, 8, 0, 18)) px(ctx, q[0], q[1], on); }
-  // ripples
+  const sv = screenVel(cr.vel);
+  const face = Math.abs(sv.x) > 0.3 ? (sv.x > 0 ? 1 : -1) : (cr.seed % 2 ? 1 : -1);
+  if (sel) { const on = Math.floor(t * 6) % 2 ? P.foam : P.sand; for (const q of disc(wx, wy, 9, 0, 20)) px(ctx, q[0], q[1], on); }
+  if (cr.kind === "bug") return drawBug(ctx, cr, x, y, t, face);
+  // waterline lap
   const rk = Math.floor(t * 3 + cr.seed) % 3;
-  px(ctx, x - 6 - rk, y + 1, P.foam, 2, 1); px(ctx, x + 5 + rk, y + 1, P.foam, 2, 1);
-  if (cr.kind === "bug") {
-    // glitch kraken: surfaces from below, sinks with bubbles when fixed
-    const sink = cr.phase === "arriving" ? Math.round((1 - cr.k) * 8) : cr.phase === "resolving" ? Math.round(cr.k * 8) : 0;
-    const top = y - 9 + bob + sink;
-    ctx.save(); ctx.beginPath(); ctx.rect(x - 8, top - 2, 16, y - top + 2); ctx.clip();
-    const body = cr.seed % 2 ? P.purple : "#7b2f7b";
-    px(ctx, x - 4, top + 2, body, 9, 7); px(ctx, x - 3, top, body, 7, 2); px(ctx, x - 2, top - 1, P.lime, 1, 1); px(ctx, x + 2, top - 1, P.lime, 1, 1);
-    const blink = Math.floor(t * 2 + cr.seed) % 7 === 0;
-    px(ctx, x - 2, top + 3, blink ? body : P.paper, 2, 2); px(ctx, x + 1, top + 3, blink ? body : P.paper, 2, 2);
-    if (!blink) { px(ctx, x - 1, top + 4, P.ink); px(ctx, x + 2, top + 4, P.ink); }
-    px(ctx, x - 1, top + 6, P.red, 3, 1);
-    // tentacles
-    for (const tx of [-5, 5]) { const wv = Math.floor(t * 4 + tx) % 2; px(ctx, x + tx, top + 4 + wv, P.lime, 1, 3); px(ctx, x + tx + Math.sign(tx), top + 3 + wv, P.lime); }
-    // glitch pixels
-    if (Math.floor(t * 9 + cr.seed) % 5 === 0) px(ctx, x + 3, top + 1, P.foam, 2, 1);
-    ctx.restore();
-    if (cr.phase !== "active") for (let k = 0; k < 4; k++) { const f = (t * 1.5 + k / 4) % 1; px(ctx, x - 3 + k * 2, y - 2 - f * 10, P.foam, 1 + (k % 2), 1 + (k % 2)); }
-    return;
-  }
-  const rock = Math.floor(t * 2 + cr.seed) % 2;
   if (cr.kind === "enhancement") {
-    // cargo tugboat with a smoking stack
-    px(ctx, x - 7, y - 3 + bob, P.ink, 15, 4); px(ctx, x - 6, y - 4 + bob, P.red, 13, 3); px(ctx, x - 6, y - 2 + bob, P.paper, 13, 1);
-    px(ctx, x - 3, y - 9 + bob, P.paper, 6, 5); px(ctx, x - 2, y - 8 + bob, P.cyan, 2, 2); px(ctx, x + 1, y - 8 + bob, P.cyan, 1, 2);
-    px(ctx, x + 3, y - 12 + bob, P.slate, 2, 7); px(ctx, x + 3, y - 12 + bob, P.butter, 2, 1);
-    px(ctx, x - 6, y - 7 + bob + rock, P.wood, 3, 3); px(ctx, x - 6, y - 7 + bob + rock, P.sand, 3, 1); // crate
-    const puffs = cr.phase === "resolving" ? 5 : 3;
-    for (let k = 0; k < puffs; k++) { const f = (t * 0.8 + k / puffs) % 1; const r = 1 + Math.floor(f * 3); px(ctx, x + 3 + f * 6, y - 14 + bob - f * 10, cr.phase === "resolving" ? P.paper : "#94b0c2", r, r); }
+    px(ctx, x - 10 - rk, y, P.foam, 2, 1); px(ctx, x + 9 + rk, y, P.foam, 2, 1);
+    sprite(ctx, TUG, TUG_PAL, x, y + 1 + bob, face < 0);
+    // steam from the stack (drifts aft)
+    const sx = x + face * 2, puffs = cr.phase === "resolving" ? 5 : 3;
+    for (let k = 0; k < puffs; k++) {
+      const f = (t * 0.8 + k / puffs) % 1, r = 1 + Math.floor(f * 3);
+      px(ctx, sx - face * f * 7 - r / 2, y - 16 + bob - f * 9, cr.phase === "resolving" || honk ? P.paper : "#94b0c2", r, r);
+    }
+    if (honk && Math.floor(t * 4 + cr.seed) % 3 !== 0) {
+      px(ctx, sx - 2, y - 26 + bob, P.paper, 5, 7); px(ctx, sx - 3, y - 25 + bob, P.paper, 7, 5);
+      pixText(ctx, "!", sx - 1, y - 25 + bob, P.red);
+    }
     return;
   }
-  // task: little rowboat with a scroll, plus a blinking buoy
-  px(ctx, x - 5, y - 2 + bob, P.ink, 11, 3); px(ctx, x - 4, y - 3 + bob, P.wood, 9, 2); px(ctx, x - 4, y - 3 + bob, "#c28553", 9, 1);
-  px(ctx, x - 1, y - 6 + bob, P.paper, 3, 3); px(ctx, x - 1, y - 6 + bob, P.sand, 3, 1);
-  px(ctx, x + 6, y - 4 + rock, P.red, 2, 4); px(ctx, x + 6, y - 2 + rock, P.paper, 2, 1);
-  if (Math.floor(t * 3 + cr.seed) % 2) px(ctx, x + 6, y - 6 + rock, P.sand, 2, 1);
+  // task rowboat: a rower pulling oars, scroll cargo up front
+  px(ctx, x - 8 - rk, y, P.foam, 2, 1); px(ctx, x + 7 + rk, y, P.foam, 2, 1);
+  const h = cr.seed;
+  const pal: Pal = { k: P.ink, H: HAIR[h % HAIR.length]!, S: P.skin, c: SHIRTS[(h >> 3) % SHIRTS.length]!, C: shade(SHIRTS[(h >> 3) % SHIRTS.length]!, 0.7),
+    w: P.paper, y: P.sand, h: "#d99a62", b: P.wood, B: shade(P.wood, 0.7) };
+  sprite(ctx, ROWBOAT, pal, x, y + 1 + bob, face < 0);
+  const stroke = Math.floor(t * 3 + h) % 2;
+  const ox = x - face * 2, oy = y - 5 + bob; // oarlock near the rower
+  if (stroke) { // blade in the water + splash
+    for (let k = 0; k < 4; k++) px(ctx, ox - face * k, oy + k, P.wood);
+    px(ctx, ox - face * 4 - 1, oy + 4, P.foam, 3, 1); px(ctx, ox - face * 6, oy + 3, P.paper);
+  } else { // recovering, blade up
+    for (let k = 0; k < 4; k++) px(ctx, ox + face * k, oy - k + 1, P.wood);
+    px(ctx, ox + face * 4, oy - 3, "#c28553", 2, 2);
+  }
+}
+
+/** Glitch kraken. Grows (and sprouts tentacles) the longer its issue stays open. */
+function drawBug(ctx: Ctx, cr: CreatureState, x: number, y: number, t: number, face: number) {
+  const tier = cr.age < 3 ? 0 : cr.age < 10 ? 1 : 2;
+  const bw = 9 + tier * 2, bh = 7 + tier;
+  const sinkA = cr.phase === "arriving" ? (1 - cr.k) : cr.phase === "resolving" ? cr.k : 0;
+  const sink = Math.round(Math.max(sinkA, cr.dive) * (bh + 4));
+  const bob = Math.round(Math.sin(t * 2.2 + cr.seed) * 1);
+  const top = y - bh - 2 + bob + sink;
+  const body = cr.seed % 2 ? P.purple : "#7b2f7b", hi = shade(body, 1.35), lo = shade(body, 0.7);
+  const paint = () => {
+    const x0 = x - Math.floor(bw / 2);
+    // body: rounded blob with 3-tone shading
+    px(ctx, x0 + 1, top, P.ink, bw - 2, 1); px(ctx, x0, top + 1, P.ink, bw, bh);
+    px(ctx, x0 + 1, top + 1, body, bw - 2, bh - 1);
+    px(ctx, x0 + 1, top + 1, hi, bw - 3, 1); px(ctx, x0 + 1, top + 2, hi, 1, 2);
+    px(ctx, x0 + 1, top + bh - 1, lo, bw - 2, 1);
+    // antennae
+    px(ctx, x0 + 2, top - 2, P.lime, 1, 2); px(ctx, x0 + bw - 3, top - 2, P.lime, 1, 2);
+    if (Math.floor(t * 3 + cr.seed) % 2) { px(ctx, x0 + 2, top - 3, P.paper); px(ctx, x0 + bw - 3, top - 3, P.paper); }
+    // eyes look where it's heading
+    const blink = Math.floor(t * 2 + cr.seed) % 7 === 0, ey = top + 2, look = face > 0 ? 1 : 0;
+    for (const ex of [x - 3 - tier * 0.5, x + 1 + tier * 0.5]) {
+      px(ctx, ex, ey, blink ? body : P.paper, 2, 2);
+      if (!blink) px(ctx, ex + look, ey + 1, P.ink);
+    }
+    // jagged mouth with teeth
+    px(ctx, x - 2, top + bh - 3, P.ink, 5, 2); px(ctx, x - 1, top + bh - 3, P.paper); px(ctx, x + 1, top + bh - 3, P.paper);
+    px(ctx, x, top + bh - 2, P.red);
+    // tentacles: 2, 3 or 4 depending on age
+    const n = 2 + tier;
+    for (let k = 0; k < n; k++) {
+      const side = k % 2 ? 1 : -1, row = Math.floor(k / 2);
+      const wv = Math.floor(t * 4 + k + cr.seed) % 2;
+      const tx = side > 0 ? x0 + bw + row : x0 - 1 - row, ty = top + 3 + row * 2 + wv;
+      px(ctx, tx, ty, P.lime, 1, 3); px(ctx, tx + side, ty - 1 + wv, P.lime); px(ctx, tx, ty + 3, shade(P.lime, 0.7));
+    }
+    // glitch: torn scanlines
+    if (Math.floor(t * 9 + cr.seed) % (tier === 2 ? 3 : 5) === 0) { px(ctx, x0 + 2, top + 4, P.foam, 3, 1); px(ctx, x0 + bw - 4, top + 2, "#73eff7", 2, 1); }
+  };
+  // above water: full colour; below the waterline: a dim ghost
+  ctx.save(); ctx.beginPath(); ctx.rect(x - 14, top - 6, 28, y - top + 7); ctx.clip(); paint(); ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.rect(x - 14, y + 1, 28, 20); ctx.clip(); ctx.globalAlpha = 0.28; paint(); ctx.restore();
+  // waterline ripple ring
+  const rk = Math.floor(t * 3 + cr.seed) % 3, half = Math.floor(bw / 2) + 2;
+  px(ctx, x - half - rk, y + 1, P.foam, 2 + (rk === 0 ? 1 : 0), 1); px(ctx, x + half - 1 + rk, y + 1, P.foam, 2, 1);
+  if (sink > 2) px(ctx, x - 2, y + 1, shade(P.foam, 0.8), 5, 1);
+  // bubbles while diving, surfacing or being squashed
+  if (cr.dive > 0.05 || cr.phase !== "active") {
+    const nB = cr.phase === "resolving" ? 6 : 3;
+    for (let k = 0; k < nB; k++) { const f = (t * 1.5 + k / nB + cr.seed * 0.001) % 1; px(ctx, x - 3 + ((k * 3) % 7), y - f * 10, P.foam, 1 + (k % 2), 1 + (k % 2)); }
+  }
 }
