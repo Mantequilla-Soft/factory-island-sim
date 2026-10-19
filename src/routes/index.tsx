@@ -1,5 +1,6 @@
 import { ALLOWED_SNAPSHOT_HOSTS, DEFAULT_ORG, SNAPSHOTS_BASE, SNAPSHOT_URL, commitUrl, prNumber } from "@/lib/env";
 import { loadSnapshot as loadFromSource } from "@/lib/snapshotSource";
+import { floating } from "@/lib/issueAge";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FIXTURES } from "@/sim/fixture";
@@ -34,13 +35,6 @@ const fmt = (ms: number) => {
   const d = new Date(ms);
   return `${DAYS[d.getUTCDay()]} ${d.getUTCDate()}/${d.getUTCMonth() + 1} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`;
 };
-/** "Floating for 14 days" — how long the issue has been open at the replay's current moment */
-function floating(x: { openedAt: string; closedAt?: string }, nowMs: number) {
-  const end = x.closedAt && Date.parse(x.closedAt) <= nowMs ? Date.parse(x.closedAt) : nowMs;
-  const h = Math.max(0, (end - Date.parse(x.openedAt)) / 3_600_000);
-  const v = h < 1 ? "under an hour" : h < 48 ? `${Math.floor(h)} hour${Math.floor(h) === 1 ? "" : "s"}` : `${Math.floor(h / 24)} days`;
-  return x.closedAt && Date.parse(x.closedAt) <= nowMs ? `${v} (closed)` : `for ${v}`;
-}
 const btn = "border-2 border-border bg-secondary px-3 py-2 text-xs text-secondary-foreground hover:border-accent disabled:opacity-50";
 
 function Index() {
