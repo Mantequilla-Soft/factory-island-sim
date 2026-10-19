@@ -200,8 +200,6 @@ function drawWorker(ctx: Ctx, x: number, y: number, t: number, actor: string, is
     k: P.ink, H: hair, h: shade(hair, 0.75), S: P.skin, s: shade(P.skin, 0.8), e: P.ink,
     c: shirt, C: shade(shirt, 0.7), p: pants, y: P.butter, Y: shade(P.butter, 0.75),
   };
-  pal.h = front ? shade(shirt, 1.3) : shirt; // shirt highlight only reads from the front
-  if (!front) pal.h = shade(hair, 0.75);
   const top = sy - 4 - bob; // bottom of torso
   // legs: 3px tall, one lifts and swings per step
   const legL = frame === 1 ? -1 : 0, legR = frame === 3 ? -1 : 0;
