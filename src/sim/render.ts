@@ -231,10 +231,59 @@ function drawBee(ctx: Ctx, sx: number, sy: number, t: number) {
   px(ctx, sx + 4, sy + 1, P.ink, 1, 1);
 }
 
+/* ---------- toy effects + camera (UI only: never part of the simulation) ---------- */
+export type Fx = { kind: "ripple"; x: number; y: number; born: number } | { kind: "honk"; id: string; born: number };
+export const FX_LIFE = 1400; // ms
+export type DrawOpts = { fx?: Fx[]; now?: number };
+
+export type Cam = { x: number; y: number; z: number }; // view centre in base-canvas px + zoom
+export const CAM_HOME: Cam = { x: RW / 2, y: RH / 2, z: 1 };
+export function clampCam(c: Cam): Cam {
+  const hw = RW / (2 * c.z), hh = RH / (2 * c.z);
+  return { z: c.z, x: Math.min(RW - hw, Math.max(hw, c.x)), y: Math.min(RH - hh, Math.max(hh, c.y)) };
+}
+/** view (canvas) px -> base scene px */
+export const viewToBase = (cam: Cam, x: number, y: number) => ({ x: cam.x + (x - RW / 2) / cam.z, y: cam.y + (y - RH / 2) / cam.z });
+/** blit the full-size scene through the camera with crisp nearest-neighbour pixels */
+export function present(ctx: Ctx, scene: HTMLCanvasElement, cam: Cam) {
+  ctx.imageSmoothingEnabled = false;
+  const w = RW / cam.z, h = RH / cam.z;
+  ctx.fillStyle = P.sea; ctx.fillRect(0, 0, RW, RH);
+  ctx.drawImage(scene, cam.x - w / 2, cam.y - h / 2, w, h, 0, 0, RW, RH);
+}
+export function islandFocus(c: Compiled, w: WorldState, id: string, z = 2.5): Cam | null {
+  const g = islandGeo(c, w).find((x) => x.id === id);
+  if (!g) return null;
+  const [x, y] = proj(g.x, g.y, 10);
+  return clampCam({ x, y, z });
+}
+
+function drawRipple(ctx: Ctx, x: number, y: number, age: number) {
+  for (let j = 0; j < 3; j++) {
+    const a = age - j * 0.16;
+    if (a <= 0 || a >= 1) continue;
+    const r = 2 + a * 15, n = Math.max(10, Math.round(r * 2.4));
+    const col = a < 0.45 ? P.foam : a < 0.75 ? shade(P.foam, 0.7) : "#4e6fd6";
+    for (let k = 0; k < n; k++) {
+      if ((k + j) % 3 === 0 && a > 0.5) continue; // break up the ring as it fades
+      const th = (k / n) * Math.PI * 2;
+      px(ctx, x + Math.cos(th) * r, y + Math.sin(th) * r * 0.5, col);
+    }
+  }
+  if (age < 0.35) for (let k = 0; k < 4; k++) { const th = k * 1.7; px(ctx, x + Math.cos(th) * 3, y - 2 - age * 18 + (k % 2) * 2, P.paper); }
+}
+function drawToot(ctx: Ctx, x: number, y: number, age: number) {
+  const up = Math.round(age * 6);
+  const bx = Math.round(x - 12), by = Math.round(y - 32 - up);
+  px(ctx, bx - 1, by - 1, P.ink, 25, 9); px(ctx, bx, by, P.paper, 23, 7);
+  px(ctx, bx + 9, by + 8, P.ink, 3, 2); px(ctx, bx + 10, by + 7, P.paper, 1, 2);
+  pixText(ctx, "TOOT!", bx + 2, by + 1, P.red);
+}
+
 /* ---------- main draw ---------- */
 type D = { d: number; fn: () => void };
 
-export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | null, selWorker: string | null = null, selIssue: string | null = null) {
+export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | null, selWorker: string | null = null, selIssue: string | null = null, opts: DrawOpts = {}) {
   const t = w.t;
   const night = nightAt(w.realMs);
   const glows: [number, number, number][] = []; // light sources drawn after the night tint
@@ -677,6 +726,14 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     add(p.x, p.y, () => drawCreature(ctx, cr, p.x, p.y, t, cr.id === selIssue, honk));
   }
 
+  // toy ripples sit on the water under everything
+  const now = opts.now ?? 0;
+  for (const f of opts.fx ?? []) {
+    if (f.kind !== "ripple") continue;
+    const age = (now - f.born) / FX_LIFE;
+    if (age >= 0 && age < 1) items.push({ d: -1e6 + 1, fn: () => drawRipple(ctx, f.x, f.y, age) });
+  }
+
   // crowd badges at piers whose queue overflows
   geo.forEach((g, gi) => {
     const extra = w.islands[gi]!.queue - QUEUE_VISIBLE;
@@ -710,6 +767,15 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     }
     ctx.globalCompositeOperation = "source-over";
     for (const [gx, gy] of glows) px(ctx, gx, gy, "#fff3c4", 1, 1);
+  }
+
+  // honks read on top of the night tint
+  for (const f of opts.fx ?? []) {
+    if (f.kind !== "honk") continue;
+    const age = (now - f.born) / FX_LIFE, cr = w.creatures.find((x) => x.id === f.id);
+    if (!cr || age < 0 || age >= 1) continue;
+    const p = toW(cr.pos); const [x, y] = proj(p.x, p.y, 0);
+    drawToot(ctx, x, y, age);
   }
 
   if (w.hidden) badge(ctx, `+${w.hidden}`, 16, RH - 14);

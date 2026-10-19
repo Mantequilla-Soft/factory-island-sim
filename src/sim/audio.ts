@@ -53,6 +53,8 @@ export class RetroAudio {
     [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, 0.12, "square", 0.07, i * 0.08));
     this.tone(1046.5, 0.35, "triangle", 0.08, 0.34); this.tone(1318.5, 0.35, "triangle", 0.06, 0.34);
   }
+  honk() { if (!this.ready) return; this.tone(311, 0.16, "square", 0.08); this.tone(233, 0.28, "square", 0.08, 0.2); this.noise(0.3, 0.05, 900, 0.2); }
+  bloop() { if (!this.ready) return; this.tone(520, 0.12, "sine", 0.18, 0, 180); this.tone(900, 0.06, "sine", 0.06, 0.1); }
   splash() {
     if (!this.ready) return;
     this.tone(160, 0.2, "sine", 0.4, 0, 50);
