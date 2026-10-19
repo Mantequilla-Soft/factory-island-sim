@@ -246,6 +246,9 @@ function Index() {
     ...issueFeed.map((x) => ({ at: x.at, iss: x })),
   ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 40);
   const sel = selected ? world.islands.find((i) => i.id === selected) : null;
+  // keep the island card off the island itself (it would swallow a double-click zoom)
+  const selFocus = selected ? islandFocus(compiled, world, selected, 1) : null;
+  const selOnRight = !!selFocus && selFocus.x > W / 2;
   const selRepo = selected ? snapshot.repos.find((r) => r.id === selected) : null;
 
   // worker inspection
@@ -335,7 +338,7 @@ function Index() {
               </div>
             )}
             {sel && selRepo && (
-              <div className="absolute right-2 top-2 w-56 border-2 border-accent bg-card p-3 text-xs">
+              <div className={`absolute top-2 w-56 border-2 border-accent bg-card p-3 text-xs ${selOnRight ? "left-2" : "right-2"}`}>
                 <div className="flex justify-between"><b className="text-accent">{selRepo.name}</b>
                   <button onClick={() => setSelected(null)} aria-label="Close">×</button></div>
                 <p className="mt-1">Buildings: {sel.buildings}</p>
