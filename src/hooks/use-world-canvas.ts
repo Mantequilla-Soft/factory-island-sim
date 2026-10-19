@@ -44,6 +44,7 @@ export function useWorldCanvas(canvasRef: RefObject<HTMLCanvasElement | null>, s
   wheelMode.current = opts.wheel ?? "always";
   const drag = useRef<{ id: number; x: number; y: number; moved: boolean } | null>(null);
   const justDragged = useRef(false);
+  const [canvasEl, setCanvasEl] = useState<HTMLCanvasElement | null>(null);
 
   const paint = () => {
     const ctx = canvasRef.current?.getContext("2d");
@@ -99,9 +100,11 @@ export function useWorldCanvas(canvasRef: RefObject<HTMLCanvasElement | null>, s
     return () => window.removeEventListener("keydown", onKey);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // the canvas element can be swapped (loading states, week fade remounts): track it so listeners follow
+  useEffect(() => { if (canvasRef.current !== canvasEl) setCanvasEl(canvasRef.current); });
   // wheel / trackpad pinch zoom around the cursor, drag to pan (native listeners: wheel must be non-passive)
   useEffect(() => {
-    const el = canvasRef.current;
+    const el = canvasEl;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
       if (wheelMode.current === "modifier" && !e.ctrlKey && !e.metaKey) return;
