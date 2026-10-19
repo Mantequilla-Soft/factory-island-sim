@@ -51,7 +51,7 @@ export function validateSnapshot(v: unknown): Snapshot {
     if (x.closedBy !== undefined && !ids.has(x.closedBy as string)) fail(`issues[${i}].closedBy "${String(x.closedBy)}" is not in people.`);
     if (typeof x.openedAt !== "string" || isNaN(Date.parse(x.openedAt))) fail(`issues[${i}].openedAt is not an ISO timestamp.`);
     if (x.closedAt !== undefined && (typeof x.closedAt !== "string" || isNaN(Date.parse(x.closedAt)))) fail(`issues[${i}].closedAt is not an ISO timestamp.`);
-    if (x.labels !== undefined && (!Array.isArray(x.labels) || x.labels.length > 6 || x.labels.some((l) => typeof l !== "string" || l.length > 40))) fail(`issues[${i}].labels must be up to 6 short label names.`);
+    if (x.labels !== undefined && (!Array.isArray(x.labels) || x.labels.length > 6 || (x.labels as unknown[]).some((l) => typeof l !== "string" || (l as string).length > 40))) fail(`issues[${i}].labels must be up to 6 short label names.`);
     if (x.assignee !== undefined && !ids.has(x.assignee as string)) fail(`issues[${i}].assignee "${String(x.assignee)}" is not in people.`);
     if (x.url !== undefined && (typeof x.url !== "string" || !/^https:\/\/github\.com\/[^/]+\/[^/]+\/issues\/\d+$/.test(x.url))) fail(`issues[${i}].url must be a https://github.com/<org>/<repo>/issues/<n> link.`);
   });
