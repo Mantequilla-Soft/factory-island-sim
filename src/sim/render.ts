@@ -695,17 +695,21 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     ctx.fillStyle = `rgba(14,16,44,${(0.55 * night).toFixed(3)})`;
     ctx.fillRect(0, 0, RW, RH);
     for (const [bx, by, a] of beams) { ctx.fillStyle = `rgba(255,243,176,${(0.35 * a * night).toFixed(3)})`; ctx.fillRect(Math.round(bx) - 1, Math.round(by), 3, 1); }
-    // dithered warm halos: a checkerboard of light pixels reads as glow without greying the scene
+    // additive warm halos so lights glow instead of greying the scene
+    ctx.globalCompositeOperation = "lighter";
     for (const [gx, gy, r] of glows) {
       const cx2 = Math.round(gx), cy2 = Math.round(gy);
-      for (let yy = -r; yy <= r; yy++) for (let xx = -r; xx <= r; xx++) {
-        const d = Math.hypot(xx, yy * 1.4);
-        if (d > r || (xx + yy) % 2) continue;
-        ctx.fillStyle = d < r * 0.45 ? `rgba(255,214,120,${(0.55 * night).toFixed(3)})` : `rgba(255,170,60,${(0.28 * night * (1 - d / r)).toFixed(3)})`;
-        ctx.fillRect(cx2 + xx, cy2 + yy, 1, 1);
+      for (let ring = r; ring >= 1; ring -= 1) {
+        const k = 1 - ring / (r + 1);
+        ctx.fillStyle = `rgba(120,70,10,${(0.22 * k * night).toFixed(3)})`;
+        for (let yy = -ring; yy <= ring; yy++) {
+          const ww = Math.round(Math.sqrt(ring * ring - yy * yy * 2));
+          if (ww >= 0 && yy * yy * 2 <= ring * ring) ctx.fillRect(cx2 - ww, cy2 + yy, ww * 2 + 1, 1);
+        }
       }
-      px(ctx, cx2, cy2, "#fff3c4", 1, 1);
     }
+    ctx.globalCompositeOperation = "source-over";
+    for (const [gx, gy] of glows) px(ctx, gx, gy, "#fff3c4", 1, 1);
   }
 
   if (w.hidden) badge(ctx, `+${w.hidden}`, 16, RH - 14);
