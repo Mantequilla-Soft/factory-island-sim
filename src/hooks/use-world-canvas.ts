@@ -144,7 +144,7 @@ export function useWorldCanvas(canvasRef: RefObject<HTMLCanvasElement | null>, s
       el.removeEventListener("pointerup", onUp);
       el.removeEventListener("pointercancel", onUp);
     };
-  }, [canvasRef]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [canvasEl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { cam.current = CAM_HOME; camTarget.current = CAM_HOME; setZoom(1); fx.current = []; }, [scene.compiled]);
 
