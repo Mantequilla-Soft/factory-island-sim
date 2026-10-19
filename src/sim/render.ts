@@ -701,7 +701,7 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
       const cx2 = Math.round(gx), cy2 = Math.round(gy);
       for (let ring = r; ring >= 1; ring -= 1) {
         const k = 1 - ring / (r + 1);
-        ctx.fillStyle = `rgba(120,70,10,${(0.22 * k * night).toFixed(3)})`;
+        ctx.fillStyle = `rgba(170,100,25,${(0.4 * k * night).toFixed(3)})`;
         for (let yy = -ring; yy <= ring; yy++) {
           const ww = Math.round(Math.sqrt(ring * ring - yy * yy * 2));
           if (ww >= 0 && yy * yy * 2 <= ring * ring) ctx.fillRect(cx2 - ww, cy2 + yy, ww * 2 + 1, 1);
