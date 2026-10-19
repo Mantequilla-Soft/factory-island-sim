@@ -156,33 +156,70 @@ export function islandGeo(c: Compiled, w: WorldState): IslandGeo[] {
 }
 
 /* ---------- characters ---------- */
-function drawWorker(ctx: Ctx, x: number, y: number, t: number, actor: string, isBot: boolean, dir: { x: number; y: number }, moving: boolean, working: boolean) {
+// 7px-wide Habbo-ish people: right-facing views; left is a mirror. Legs and arms are drawn per frame.
+const HEAD_FRONT = ["..kkk..", ".kHHHk.", "kHHHHHk", "kHSeSek", "kSSSSsk", ".kSSsk."];
+const HEAD_BACK = ["..kkk..", ".kHHHk.", "kHHHHHk", "kHHHHHk", "kHHHHhk", ".kSSsk."];
+const TORSO = ["kchccCk", "kccccCk", "kccccCk", ".kpppk."];
+const HARDHAT = ["..kkk..", ".kyyYk.", "kyyyyyYk"];
+const BOT = [
+  "...k...",
+  "..kok..",
+  ".kfffk.",
+  "kfwffFk",
+  "kfffffk",
+  ".kkkkk.",
+  "kgggggk",
+  "kgcgcGk",
+  "kgggggk",
+  "kGGGGGk",
+  ".kkkkk.",
+];
+export type WorkerRole = { reviewer: boolean; blueprint: boolean };
+function drawWorker(ctx: Ctx, x: number, y: number, t: number, actor: string, isBot: boolean, dir: { x: number; y: number }, moving: boolean, working: boolean, role: WorkerRole) {
   const h = hash(actor);
-  const step = moving ? Math.floor(t * 10 + (h % 7)) % 2 : 0;
-  const bob = moving ? step : working ? Math.floor(t * 6 + (h % 5)) % 2 : 0;
+  const frame = moving ? Math.floor(t * 9 + (h % 7)) % 4 : 0; // stand, stepA, stand, stepB
+  const bob = moving ? (frame % 2) : working ? Math.floor(t * 6 + (h % 5)) % 2 : 0;
   poly(ctx, disc(x, y, 3.2, 0, 10), "rgba(26,28,44,0.45)");
+  const [sx0, sy0] = proj(x, y, 0);
+  const sx = Math.round(sx0), sy = Math.round(sy0);
+  const sdx = dir.x - dir.y, front = dir.x + dir.y >= -0.01;
+  const flip = sdx < 0;
   if (isBot) {
-    const [wx, wy] = proj(x, y, 0);
-    px(ctx, wx - 4, wy - 2, P.ink, 3, 2); px(ctx, wx + 1, wy - 2, P.ink, 3, 2);
-    box(ctx, x, y, 2 + bob, 2.5, 2.5, 5, "#94b0c2");
-    box(ctx, x, y, 7 + bob, 1.8, 1.8, 3, P.foam);
-    const [ax, ay] = proj(x, y, 13 + bob);
-    px(ctx, ax, ay, P.steel, 1, 3);
-    px(ctx, ax - (Math.floor(t * 3) % 2), ay - 1, Math.floor(t * 3) % 2 ? P.red : P.lime, 2, 1);
+    // droid on treads with blinking antenna lights
+    const blink = Math.floor(t * 3 + (h % 3)) % 2;
+    const pal: Pal = { k: P.ink, o: blink ? P.red : P.lime, f: P.foam, F: shade(P.foam, 0.7), w: P.paper, g: "#94b0c2", G: P.steel, c: front ? P.cyan : "#94b0c2" };
+    sprite(ctx, BOT, pal, sx, sy - 2 - bob, flip);
+    const tr = Math.floor(t * 12) % 2;
+    px(ctx, sx - 4, sy - 2, P.ink, 8, 2); px(ctx, sx - 3 + tr, sy - 2, P.slate, 1, 1); px(ctx, sx + 1 + tr, sy - 2, P.slate, 1, 1);
+    if (Math.floor(t * 1.5 + h) % 3 === 0) px(ctx, sx + (flip ? -2 : 1), sy - 14 - bob, P.sand, 1, 1); // antenna spark
     return;
   }
-  const [lx, ly] = proj(x, y, 0);
-  px(ctx, lx - 2, ly - 3 + (step ? 1 : 0), P.ink, 1, 3 - (step ? 1 : 0));
-  px(ctx, lx + 1, ly - 3 + (step ? 0 : 1), P.ink, 1, 3 - (step ? 0 : 1));
-  box(ctx, x, y, 3 + bob, 2, 2, 5, SHIRTS[h % SHIRTS.length]!);
-  box(ctx, x, y, 8 + bob, 2.4, 2.4, 4, P.skin, HAIR[(h >>> 4) % HAIR.length]!);
-  // hair fringe + eyes on the face we're looking toward
-  const front = dir.x + dir.y >= -0.01;
-  if (front) {
-    const onLeft = dir.y >= dir.x;
-    const [ex, ey] = onLeft ? proj(x, y + 2.4, 10 + bob) : proj(x + 2.4, y, 10 + bob);
-    const sx = onLeft ? 1 : -1;
-    px(ctx, ex - 2 * sx, ey - 0.5 * sx, P.ink); px(ctx, ex + 1 * sx, ey + 1, P.ink);
+  const shirt = SHIRTS[h % SHIRTS.length]!, hair = HAIR[(h >>> 4) % HAIR.length]!;
+  const pants = (h >>> 9) % 2 ? P.slate : "#3b5dc9";
+  const pal: Pal = {
+    k: P.ink, H: hair, h: shade(hair, 0.75), S: P.skin, s: shade(P.skin, 0.8), e: P.ink,
+    c: shirt, C: shade(shirt, 0.7), p: pants, y: P.butter, Y: shade(P.butter, 0.75),
+  };
+  pal.h = front ? shade(shirt, 1.3) : shirt; // shirt highlight only reads from the front
+  if (!front) pal.h = shade(hair, 0.75);
+  const top = sy - 4 - bob; // bottom of torso
+  // legs: 3px tall, one lifts and swings per step
+  const legL = frame === 1 ? -1 : 0, legR = frame === 3 ? -1 : 0;
+  const lx = sx - 2, rx = sx;
+  px(ctx, lx, top + legL, P.ink, 2, 4 + legL); px(ctx, lx, top + legL, pants, 1, 2 + legL + 1);
+  px(ctx, rx + 1, top + legR, P.ink, 2, 4 + legR); px(ctx, rx + 2, top + legR, shade(pants, 0.7), 1, 2 + legR + 1);
+  sprite(ctx, TORSO, { ...pal, h: front ? shade(shirt, 1.3) : shirt }, sx, top + 1, flip);
+  sprite(ctx, front ? HEAD_FRONT : HEAD_BACK, pal, sx, top - 3, flip);
+  if (role.reviewer) sprite(ctx, HARDHAT, pal, sx + (flip ? -0.5 : 0.5), top - 6, flip);
+  // arms swing opposite to legs; working arms tap the console
+  const swing = moving ? (frame === 1 ? -1 : frame === 3 ? 1 : 0) : working ? -(Math.floor(t * 8 + h) % 2) : 0;
+  const ax0 = Math.round(sx - 4), ax1 = Math.round(sx + 3), ay = top - 3;
+  px(ctx, ax0, ay + swing, shade(shirt, 0.85), 1, 2); px(ctx, ax0, ay + 2 + swing, P.skin);
+  px(ctx, ax1, ay - swing, shade(shirt, 0.7), 1, 2); px(ctx, ax1, ay + 2 - swing, P.skin);
+  if (role.blueprint && front) {
+    // rolled-out blueprint held in front
+    const bx = sx + (flip ? -3 : 0), by = top - 2;
+    px(ctx, bx - 1, by - 1, P.ink, 5, 4); px(ctx, bx, by, "#3b5dc9", 3, 2); px(ctx, bx, by, P.foam, 1, 1); px(ctx, bx + 2, by + 1, P.foam, 1, 1);
   }
 }
 
@@ -462,13 +499,15 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
     const moving = Math.hypot(dx, dy) > 0.05;
     const dir = moving ? { x: dx, y: dy } : { x: 0.3, y: 1 };
     const working = wk.phase === "fabricating" || wk.phase === "rework";
+    // at a workstation, face the console (it sits toward the machine)
+    const wdir = working && !moving ? { x: -p.x, y: -p.y } : dir;
     const sel = wk.prId === selWorker;
     add(p.x, p.y, () => {
       if (sel) {
         const on = Math.floor(t * 6) % 2 ? P.foam : P.sand;
         for (const q2 of disc(p.x, p.y, 5, 0, 16)) px(ctx, q2[0], q2[1], on);
       }
-      drawWorker(ctx, p.x, p.y, t, wk.actor, wk.isBot, dir, moving, working);
+      drawWorker(ctx, p.x, p.y, t, wk.actor, wk.isBot, wdir, moving, working, { reviewer: c.reviewers.has(wk.actor), blueprint: working });
       const [hx, hy] = proj(p.x, p.y, 17);
       if (wk.carrying && !working) {
         itemIcon(ctx, wk.kind, hx, hy);
