@@ -110,3 +110,12 @@ The simulation (`src/sim/sim.ts`: `compile`, `stateAt`) and renderer (`src/sim/r
 ## Built with
 
 TanStack Start, React, TypeScript, Tailwind CSS.
+
+## Things to try on the map
+
+- **Sea life** — every open issue floats near its island: bug monsters (they grow and sprout tentacles the longer the issue stays open), enhancement tugboats patrolling the shipping lanes, and task rowboats circling their buoys. Click one to see how long it has been floating, its labels and assignee. Boats honk back.
+- **Click open water** to make a splash.
+- **Double-click an island** to zoom in on it; press Esc or "Zoom out" to return. Works in `/embed` too.
+- **Day and night** follow the replay's UTC clock: windows, streetlamps and lighthouses light up after dark.
+- Big islands earn a beacon buoy (15+ buildings) and a lighthouse (35+).
+- The collector stores issue **label names** (never descriptions) and the **assignee**, both taken from the same search request; labels are dropped for anonymized repos.
