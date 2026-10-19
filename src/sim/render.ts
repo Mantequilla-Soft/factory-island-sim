@@ -352,24 +352,49 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
       const col = [P.paper, P.butter, P.cyan, P.sand, P.lime, "#94b0c2"][hh % 6]!;
       add(bx, by, () => {
         let z = 0;
+        const style = (hh >>> 3) % 3; // 0 brick, 1 panels, 2 stucco
         for (let f = 0; f < floors; f++) {
           const half = 4.4 - (f >= 3 ? 1 : 0) - (f >= 5 ? 0.8 : 0);
           box(ctx, bx, by, z, half, half, 4, col);
+          // masonry: grout line under each floor, staggered bricks / panel seams
+          const grout = shade(col, 0.82), grout2 = shade(col, 0.6);
+          for (let k = -half; k < half; k += 1) {
+            const [g1, g2] = proj(bx + k, by + half, z + 0.2); px(ctx, g1, g2, grout);
+            const [g3, g4] = proj(bx + half, by + k, z + 0.2); px(ctx, g3, g4, grout2);
+          }
+          if (style === 0) for (let k = -half + 1 + (f % 2); k < half; k += 2) { const [m1, m2] = proj(bx + k, by + half, z + 1.4); px(ctx, m1, m2, grout); }
+          if (style === 1) { const [m1, m2] = proj(bx, by + half, z + 2); px(ctx, m1, m2 - 1, grout, 1, 3); }
+          // rim light on the front corner
+          const [c1, c2] = proj(bx + half, by + half, z + 4); px(ctx, c1 - 1, c2, shade(col, 1.35), 1, 4);
           for (const wxo of [-2, 1.5]) {
             const lit = (hash(g.id + i + "w" + f + wxo) + Math.floor(t / 6)) % 3 !== 0;
             const [a1, a2] = proj(bx + wxo, by + half, z + 2.5);
-            px(ctx, a1, a2, lit ? P.sand : P.ink);
+            px(ctx, a1, a2, lit ? (night > 0.4 ? "#ffd27a" : P.sand) : P.ink, 1, 2);
             const [b1, b2] = proj(bx + half, by + wxo, z + 2.5);
-            px(ctx, b1, b2, lit ? P.foam : P.ink);
+            px(ctx, b1, b2, lit ? (night > 0.4 ? "#ffb54a" : P.foam) : P.ink, 1, 2);
+            if (lit && night > 0.4) { glows.push([a1, a2, 3]); glows.push([b1, b2, 3]); }
           }
           z += 4;
         }
         const roofHalf = floors >= 5 ? 2.6 : floors >= 3 ? 3.4 : 4.4;
         box(ctx, bx, by, z, roofHalf * 0.7, roofHalf * 0.7, 1.5, P.red);
+        // rooftop clutter: AC unit with spinning fan, water tank, or vent pipes
+        const deco = (hh >>> 6) % 4;
+        if (deco === 1) {
+          box(ctx, bx - 1, by - 1, z + 1.5, 1.4, 1.4, 1.6, "#94b0c2");
+          const [fx, fy] = proj(bx - 1, by - 1, z + 3.1); const sp = Math.floor(t * 8 + i) % 2;
+          px(ctx, fx - 1 + sp, fy, P.ink, 2 - sp, 1); px(ctx, fx, fy - sp, P.ink, 1, 1 + sp);
+        } else if (deco === 2 && floors >= 2) {
+          const [lx2, ly2] = proj(bx + 1, by + 1, z + 1.5); px(ctx, lx2 - 1, ly2 - 2, P.ink, 1, 2); px(ctx, lx2 + 2, ly2 - 2, P.ink, 1, 2);
+          box(ctx, bx + 1, by + 1, z + 3.5, 1.3, 1.3, 2.5, P.wood, "#c28553");
+        } else if (deco === 3) {
+          const [vx, vy] = proj(bx + 1, by - 1, z + 1.5); px(ctx, vx, vy - 3, P.steel, 1, 3); px(ctx, vx - 1, vy - 4, P.slate, 3, 1);
+          if (Math.floor(t * 2 + i) % 3 === 0) px(ctx, vx, vy - 6, "#94b0c2");
+        }
         if (floors >= 4) {
           const [ax, ay] = proj(bx, by, z + 1.5);
           px(ctx, ax, ay - 5, P.steel, 1, 5);
-          if (Math.floor(t * 2 + i) % 2) px(ctx, ax - 1, ay - 7, P.red, 3, 2);
+          if (Math.floor(t * 2 + i) % 2) { px(ctx, ax - 1, ay - 7, P.red, 3, 2); if (night > 0.3) glows.push([ax, ay - 6, 4]); }
         }
       });
     });
