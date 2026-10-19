@@ -289,7 +289,7 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
   const glows: [number, number, number][] = []; // light sources drawn after the night tint
   const beams: [number, number, number][] = [];
   const geo = islandGeo(c, w);
-  const prev = new Map(stateAt(c, Math.max(0, t - 0.06)).workers.map((k) => [k.prId, k.pos]));
+  const prev = new Map(stateAt(c, Math.max(0, t - 0.06), false).workers.map((k) => [k.prId, k.pos]));
   const items: D[] = [];
   const add = (x: number, y: number, fn: () => void) => items.push({ d: x + y, fn });
 

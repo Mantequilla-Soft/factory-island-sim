@@ -245,7 +245,8 @@ const lerp = (a: Pt, b: Pt, k: number): Pt => {
   return { x: a.x + (b.x - a.x) * s, y: a.y + (b.y - a.y) * s };
 };
 
-export function stateAt(c: Compiled, t: number): WorldState {
+/** withLife=false skips sea life (used for cheap look-behind of worker motion). */
+export function stateAt(c: Compiled, t: number, withLife = true): WorldState {
   const isle = new Map(c.islands.map((i) => [i.id, i]));
   const islandState = new Map<string, IslandState>(
     c.snapshot.repos.map((r) => [r.id, { id: r.id, buildings: r.mergedTotal, mergedThisWeek: 0, recent: [], queue: 0 }]),
@@ -329,7 +330,7 @@ export function stateAt(c: Compiled, t: number): WorldState {
   return {
     t, realMs: playToReal(c.tl, t),
     workers: workers.slice(0, MAX_WORKERS), hidden: Math.max(0, workers.length - MAX_WORKERS),
-    islands: [...islandState.values()], inspectors, scraps, creatures: creaturesAt(c, t),
+    islands: [...islandState.values()], inspectors, scraps, creatures: withLife ? creaturesAt(c, t) : [],
   };
 }
 
