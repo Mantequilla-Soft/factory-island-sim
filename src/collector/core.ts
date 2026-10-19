@@ -197,9 +197,14 @@ export async function collect(o: CollectOptions): Promise<CollectResult> {
 
   // issues: one search, labels only (titles/bodies never read)
   log("Scanning issues…");
-  type IssueItem = { number: number; user: GhUser | null; created_at: string; closed_at: string | null; repository_url: string; labels?: { name?: string }[]; pull_request?: unknown };
+  type IssueItem = { number: number; user: GhUser | null; created_at: string; closed_at: string | null; repository_url: string; labels?: { name?: string }[]; assignee?: GhUser | null; pull_request?: unknown };
   const iq = encodeURIComponent(`user:${org} is:issue updated:>=${startIso.slice(0, 10)} created:<${end.toISOString().slice(0, 10)}`);
-  const rawIssues: { repoName: string; number: number; actor: string; kind: IssueKind; openedAt: string; closedAt?: string; closedBy?: string }[] = [];
+  const rawIssues: { repoName: string; number: number; actor: string; kind: IssueKind; openedAt: string; closedAt?: string; closedBy?: string; labels: string[]; assignee?: string }[] = [];
+  // label names (never descriptions) and the assignee's login come free with the search result
+  const extras = (it: IssueItem) => ({
+    labels: (it.labels ?? []).map((l) => (l.name ?? "").slice(0, 40)).filter(Boolean).slice(0, 6),
+    ...(it.assignee ? { assignee: addPerson(it.assignee) } : {}),
+  });
   try {
     let iurl: string | null = `/search/issues?q=${iq}&per_page=100&sort=updated&order=desc`;
     const items: IssueItem[] = [];
@@ -219,7 +224,7 @@ export async function collect(o: CollectOptions): Promise<CollectResult> {
       if (closedIn && o.token) {
         try { const d = (await gh<{ closed_by?: GhUser | null }>(`/repos/${org}/${repoName}/issues/${it.number}`)).data; if (d.closed_by) closedBy = addPerson(d.closed_by); } catch { /* optional */ }
       }
-      rawIssues.push({ repoName, number: it.number, actor: addPerson(it.user), kind, openedAt: inWeek(it.created_at) ? it.created_at : startIso, ...(closedIn ? { closedAt: it.closed_at! } : {}), ...(closedBy ? { closedBy } : {}) });
+      rawIssues.push({ repoName, number: it.number, actor: addPerson(it.user), kind, openedAt: it.created_at, ...(closedIn ? { closedAt: it.closed_at! } : {}), ...(closedBy ? { closedBy } : {}), ...extras(it) });
     }
   } catch (e) { log(`Skipped issues: ${(e as Error).message}`); }
 
@@ -237,7 +242,7 @@ export async function collect(o: CollectOptions): Promise<CollectResult> {
         seen.add(`${repoName}#${it.number}`);
         const labels = (it.labels ?? []).map((l) => (l.name ?? "").toLowerCase());
         const kind: IssueKind = labels.some((l) => l.includes("bug")) ? "bug" : labels.some((l) => /enhancement|feature/.test(l)) ? "enhancement" : "task";
-        rawIssues.push({ repoName, number: it.number, actor: addPerson(it.user), kind, openedAt: it.created_at });
+        rawIssues.push({ repoName, number: it.number, actor: addPerson(it.user), kind, openedAt: it.created_at, ...extras(it) });
         backlog++;
       }
       burl = r.next;
@@ -288,11 +293,12 @@ export async function collect(o: CollectOptions): Promise<CollectResult> {
     return {
       id: `${info.id}!${n}`, repo: info.id, actor: x.actor, kind: x.kind, openedAt: x.openedAt,
       ...(x.closedAt ? { closedAt: x.closedAt } : {}), ...(x.closedBy ? { closedBy: x.closedBy } : {}),
-      ...(info.anonymized ? {} : { url: `https://github.com/${org}/${x.repoName}/issues/${x.number}` }),
+      ...(info.anonymized ? {} : { url: `https://github.com/${org}/${x.repoName}/issues/${x.number}`, ...(x.labels.length ? { labels: x.labels } : {}) }),
+      ...(x.assignee ? { assignee: x.assignee } : {}),
     };
   });
   if (!people.has("ghost") && (events.some((e) => e.actor === "ghost") || issues.some((x) => x.actor === "ghost"))) people.set("ghost", { id: "ghost", displayName: "ghost", isBot: false });
-  const used = new Set([...events.map((e) => e.actor), ...issues.flatMap((x) => [x.actor, ...(x.closedBy ? [x.closedBy] : [])])]);
+  const used = new Set([...events.map((e) => e.actor), ...issues.flatMap((x) => [x.actor, ...(x.closedBy ? [x.closedBy] : []), ...(x.assignee ? [x.assignee] : [])])]);
 
   const snapshot = validateSnapshot({
     schemaVersion: 1,

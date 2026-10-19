@@ -82,6 +82,16 @@ export function makeWeek(o: Opts): Snapshot {
   const issues: Issue[] = [];
   const nIssues = Math.round(o.prs * 0.4) + 3;
   const ikinds: IssueKind[] = ["bug", "bug", "enhancement", "task", "task"];
+  const LABELS: Record<IssueKind, string[]> = {
+    bug: ["bug", "crash", "ui", "backend", "p1", "regression"],
+    enhancement: ["enhancement", "feature", "ux", "api", "nice-to-have"],
+    task: ["docs", "chore", "good first issue", "infra", "question"],
+  };
+  const extras = (kind: IssueKind, anonymized: boolean) => {
+    const pool = LABELS[kind];
+    const labels = anonymized ? [] : [...new Set([pool[0]!, ...(r() < 0.7 ? [pick(pool)] : []), ...(r() < 0.3 ? [pick(pool)] : [])])].filter((l) => !(kind === "task" && l === pool[0] && r() < 0.5));
+    return { ...(labels.length ? { labels } : {}), ...(r() < 0.5 ? { assignee: pick(humans) } : {}) };
+  };
   for (let i = 0; i < nIssues; i++) {
     const repo = pick(repos);
     const actor = pick(humans);
@@ -95,6 +105,7 @@ export function makeWeek(o: Opts): Snapshot {
       id: `${repo.id}!${n}`, repo: repo.id, actor, kind, openedAt: new Date(opened).toISOString(),
       ...(closes && closedAt < weekStart + 7 * 24 * H - 1000 ? { closedAt: new Date(closedAt).toISOString(), closedBy: pick(humans) } : {}),
       ...(repo.anonymized ? {} : { url: `https://github.com/Mantequilla-Soft/${repo.name}/issues/${n}` }),
+      ...extras(kind, repo.anonymized),
     });
   }
   // backlog: issues opened before the week and still open — busy waters
@@ -104,9 +115,11 @@ export function makeWeek(o: Opts): Snapshot {
     counters[repo.id] = (counters[repo.id] ?? 100 + Math.floor(r() * 200)) + 1;
     const n = counters[repo.id]!;
     const opened = weekStart - (2 + r() * 20) * 24 * H; // 2–22 days before the week
+    const kind = pick(ikinds);
     issues.push({
-      id: `${repo.id}!${n}`, repo: repo.id, actor: pick(humans), kind: pick(ikinds), openedAt: new Date(opened).toISOString(),
+      id: `${repo.id}!${n}`, repo: repo.id, actor: pick(humans), kind, openedAt: new Date(opened).toISOString(),
       ...(repo.anonymized ? {} : { url: `https://github.com/Mantequilla-Soft/${repo.name}/issues/${n}` }),
+      ...extras(kind, repo.anonymized),
     });
   }
   issues.sort((a, b) => a.openedAt.localeCompare(b.openedAt) || a.id.localeCompare(b.id));

@@ -1,10 +1,12 @@
 import { ALLOWED_SNAPSHOT_HOSTS, DEFAULT_ORG, SNAPSHOTS_BASE, SNAPSHOT_URL, commitUrl, prNumber } from "@/lib/env";
 import { loadSnapshot as loadFromSource } from "@/lib/snapshotSource";
+import { floating } from "@/lib/issueAge";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FIXTURES } from "@/sim/fixture";
 import { compile, stateAt, DURATION, EVENT_LABEL } from "@/sim/sim";
-import { draw, RW as W, RH as H, screenToWorld, islandGeo, workerAt, creatureAt } from "@/sim/render";
+import { islandFocus, RW as W, RH as H, screenToWorld, islandGeo, workerAt, creatureAt } from "@/sim/render";
+import { useWorldCanvas } from "@/hooks/use-world-canvas";
 import { orgTheme } from "@/sim/orgTheme";
 import { Scorecard } from "@/components/Scorecard";
 import { validateSnapshot } from "@/sim/validate";
@@ -130,10 +132,7 @@ function Index() {
     }
   }, [t, playing, compiled]);
 
-  useEffect(() => {
-    const ctx = canvasRef.current?.getContext("2d");
-    if (ctx) { ctx.imageSmoothingEnabled = false; draw(ctx, compiled, world, selected, selWorker, selIssue); }
-  }, [compiled, world, selected, selWorker, selIssue]);
+  const { zoomed, zoomTo, zoomOut, addFx, toBase: camToBase } = useWorldCanvas(canvasRef, { compiled, world, selected, selWorker, selIssue });
 
   const toggleMute = () => {
     if (!audio.current) audio.current = new RetroAudio();
@@ -144,18 +143,37 @@ function Index() {
   };
   const changeVolume = (v: number) => { setVolume(v); if (audio.current) { audio.current.volume = v; audio.current.apply(); } };
 
-  const onClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const toBase = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width) * W, y = ((e.clientY - r.top) / r.height) * H;
+    return camToBase(((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H);
+  };
+  const islandHit = (x: number, y: number) => {
+    const p = screenToWorld(x, y);
+    return islandGeo(compiled, world).find((g) => Math.hypot(p.x - g.x, p.y - g.y) < g.R + 8);
+  };
+  const onClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const { x, y } = toBase(e);
     const wk = workerAt(world, x, y);
     if (wk) { setSelWorker(wk); setSelected(null); setSelIssue(null); return; }
     const cr = creatureAt(world, x, y);
-    if (cr) { setSelIssue(cr); setSelWorker(null); setSelected(null); return; }
+    if (cr) {
+      setSelIssue(cr); setSelWorker(null); setSelected(null);
+      const kind = world.creatures.find((c) => c.id === cr)?.kind;
+      if (kind === "bug") { addFx({ kind: "ripple", x, y, born: performance.now() }); audio.current?.bloop(); }
+      else { addFx({ kind: "honk", id: cr, born: performance.now() }); audio.current?.honk(); }
+      return;
+    }
     setSelIssue(null);
-    const p = screenToWorld(x, y);
-    const hit = islandGeo(compiled, world).find((g) => Math.hypot(p.x - g.x, p.y - g.y) < g.R + 8);
+    const hit = islandHit(x, y);
     setSelected(hit ? hit.id : null);
     setSelWorker(null);
+    if (!hit) { addFx({ kind: "ripple", x, y, born: performance.now() }); audio.current?.bloop(); }
+  };
+  const onDoubleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const { x, y } = toBase(e);
+    const hit = islandHit(x, y);
+    if (hit) { const f = islandFocus(compiled, world, hit.id); if (f) zoomTo(f); }
+    else if (zoomed) zoomOut();
   };
 
   const people = new Map(snapshot.people.map((p) => [p.id, p]));
@@ -183,6 +201,9 @@ function Index() {
     ...issueFeed.map((x) => ({ at: x.at, iss: x })),
   ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 40);
   const sel = selected ? world.islands.find((i) => i.id === selected) : null;
+  // keep the island card off the island itself (it would swallow a double-click zoom)
+  const selGeo = selected ? islandGeo(compiled, world).find((g) => g.id === selected) : null;
+  const selOnRight = !!selGeo && selGeo.x - selGeo.y > 0; // iso screen x relative to the centre
   const selRepo = selected ? snapshot.repos.find((r) => r.id === selected) : null;
 
   // worker inspection
@@ -257,17 +278,22 @@ function Index() {
           onDragLeave={() => setDragging(false)}
           onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) loadFile(f); }}>
           <div key={fadeKey} className="relative border-4 border-border bg-card duration-500 animate-in fade-in">
-            <canvas ref={canvasRef} width={W} height={H} onClick={onClick}
+            <canvas ref={canvasRef} width={W} height={H} onClick={onClick} onDoubleClick={onDoubleClick}
               className="block w-full cursor-pointer" style={{ imageRendering: "pixelated", aspectRatio: `${W}/${H}` }} />
             <Scorecard snapshot={snapshot} realMs={world.realMs} onPick={pickPerson} defaultOpen={false}
               className="absolute bottom-2 right-2 z-10 w-72 max-w-[calc(100%-1rem)] bg-card/95 [&_table]:max-h-40" />
+            {zoomed && (
+              <button onClick={zoomOut} className="absolute bottom-2 left-2 z-10 border-2 border-accent bg-card px-3 py-1.5 text-xs text-accent hover:bg-accent hover:text-accent-foreground">
+                − ZOOM OUT
+              </button>
+            )}
             {dragging && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center border-4 border-dashed border-accent bg-background/80 text-sm text-accent">
                 DROP SNAPSHOT JSON TO LOAD
               </div>
             )}
             {sel && selRepo && (
-              <div className="absolute right-2 top-2 w-56 border-2 border-accent bg-card p-3 text-xs">
+              <div className={`absolute top-2 w-56 border-2 border-accent bg-card p-3 text-xs ${selOnRight ? "left-2" : "right-2"}`}>
                 <div className="flex justify-between"><b className="text-accent">{selRepo.name}</b>
                   <button onClick={() => setSelected(null)} aria-label="Close">×</button></div>
                 <p className="mt-1">Buildings: {sel.buildings}</p>
@@ -315,7 +341,10 @@ function Index() {
                   <button onClick={() => setSelIssue(null)} aria-label="Close">×</button></div>
                 <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
                   <dt className="text-muted-foreground">Issue</dt><dd>{iSel.url ? `#${issueNo(iSel.url)}` : "hidden"}</dd>
-                  <dt className="text-muted-foreground">Label</dt><dd>{iSel.kind}</dd>
+                  <dt className="text-muted-foreground">Floating</dt><dd className="text-primary">{floating(iSel, world.realMs)}</dd>
+                  <dt className="text-muted-foreground">Labels</dt><dd className="flex flex-wrap gap-1">{(iSel.labels?.length ? iSel.labels : [iSel.kind]).map((l) => (
+                    <span key={l} className="border border-accent bg-secondary px-1 text-[9px] uppercase leading-4 text-accent">{l}</span>))}</dd>
+                  <dt className="text-muted-foreground">Assignee</dt><dd>{iSel.assignee ? people.get(iSel.assignee)?.displayName ?? iSel.assignee : <span className="text-muted-foreground">nobody yet</span>}</dd>
                   <dt className="text-muted-foreground">Island</dt><dd>{repoName(iSel.repo)}</dd>
                   <dt className="text-muted-foreground">Opened by</dt><dd>{people.get(iSel.actor)?.displayName ?? iSel.actor}</dd>
                   <dt className="text-muted-foreground">Opened</dt><dd>{fmt(Date.parse(iSel.openedAt))}</dd>
@@ -339,7 +368,7 @@ function Index() {
               onChange={(e) => setT(Number(e.target.value))} className="min-w-40 flex-1 accent-primary" />
             <span className="tabular-nums text-accent">{fmt(world.realMs)}</span>
           </div>
-          <p className="text-xs text-muted-foreground">Click a worker, island, sea monster or boat to inspect it. Drop a snapshot JSON anywhere on the map to load it.</p>
+          <p className="text-xs text-muted-foreground">Click a worker, island, sea monster or boat to inspect it (boats honk back). Click open water to splash. Double-click an island to zoom in, Esc to zoom out. Drop a snapshot JSON anywhere on the map to load it.</p>
         </section>
         <div className="flex flex-col gap-4">
         <aside className="flex max-h-[70vh] flex-col border-2 border-border bg-card" aria-live="polite">

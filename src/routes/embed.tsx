@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { compile, stateAt, DURATION } from "@/sim/sim";
-import { draw, RW as W, RH as H, screenToWorld, islandGeo, workerAt } from "@/sim/render";
+import { islandFocus, RW as W, RH as H, screenToWorld, islandGeo, workerAt, creatureAt } from "@/sim/render";
+import { useWorldCanvas } from "@/hooks/use-world-canvas";
 import { FIXTURES } from "@/sim/fixture";
 import type { Snapshot } from "@/sim/types";
 import { ALLOWED_SNAPSHOT_HOSTS, DEFAULT_ORG, SNAPSHOTS_BASE, prNumber } from "@/lib/env";
@@ -216,13 +217,7 @@ function Embed() {
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
-  useEffect(() => {
-    const ctx = canvasRef.current?.getContext("2d");
-    if (ctx && compiled && world) {
-      ctx.imageSmoothingEnabled = false;
-      draw(ctx, compiled, world, selIsland, selWorker);
-    }
-  }, [compiled, world, selIsland, selWorker]);
+  const { zoomed, zoomTo, zoomOut, addFx, toBase } = useWorldCanvas(canvasRef, { compiled, world, selected: selIsland, selWorker, selIssue: null });
 
   const onClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!compiled || !world) return;
@@ -230,8 +225,7 @@ function Embed() {
     // The canvas is letterboxed (object-fit: contain) when the frame's aspect ratio differs
     // from the drawing's, so subtract the bars before scaling or clicks drift off target.
     const scale = Math.min(r.width / W, r.height / H);
-    const x = (e.clientX - r.left - (r.width - W * scale) / 2) / scale;
-    const y = (e.clientY - r.top - (r.height - H * scale) / 2) / scale;
+    const { x, y } = toBase((e.clientX - r.left - (r.width - W * scale) / 2) / scale, (e.clientY - r.top - (r.height - H * scale) / 2) / scale);
     const wk = workerAt(world, x, y);
     if (wk) {
       setSelWorker(wk);
@@ -239,11 +233,29 @@ function Embed() {
       send({ type: "select", kind: "worker", id: wk });
       return;
     }
+    // sea life honks / splashes back (visual only)
+    const cr = creatureAt(world, x, y);
+    if (cr) {
+      const kind = world.creatures.find((c) => c.id === cr)?.kind;
+      addFx(kind === "bug" ? { kind: "ripple", x, y, born: performance.now() } : { kind: "honk", id: cr, born: performance.now() });
+      return;
+    }
     const p = screenToWorld(x, y);
     const hit = islandGeo(compiled, world).find((g) => Math.hypot(p.x - g.x, p.y - g.y) < g.R + 8);
     setSelIsland(hit ? hit.id : null);
     setSelWorker(null);
     if (hit) send({ type: "select", kind: "island", id: hit.id });
+    else addFx({ kind: "ripple", x, y, born: performance.now() });
+  };
+  const onDoubleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!compiled || !world) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const scale = Math.min(r.width / W, r.height / H);
+    const { x, y } = toBase((e.clientX - r.left - (r.width - W * scale) / 2) / scale, (e.clientY - r.top - (r.height - H * scale) / 2) / scale);
+    const p = screenToWorld(x, y);
+    const hit = islandGeo(compiled, world).find((g) => Math.hypot(p.x - g.x, p.y - g.y) < g.R + 8);
+    const f = hit ? islandFocus(compiled, world, hit.id) : null;
+    if (f) zoomTo(f); else if (zoomed) zoomOut();
   };
 
   const onSeek = (v: number) => {
@@ -284,6 +296,7 @@ function Embed() {
           width={W}
           height={H}
           onClick={onClick}
+          onDoubleClick={onDoubleClick}
           role="img"
           aria-label={
             snapshot
@@ -293,6 +306,11 @@ function Embed() {
           className="block h-full w-full cursor-pointer"
           style={{ imageRendering: "pixelated", objectFit: "contain" }}
         />
+        {zoomed && (
+          <button onClick={zoomOut} className="absolute left-2 top-2 z-10 border-2 border-accent bg-card px-2 py-1 text-[11px] text-accent hover:bg-accent hover:text-accent-foreground">
+            − ZOOM OUT
+          </button>
+        )}
         {snapshot && world && flag(raw.scorecard, true) && (
           <Scorecard snapshot={snapshot} realMs={world.realMs} defaultOpen={false}
             onPick={(id) => { const w = world.workers.find((x) => x.actor === id); if (w) { setSelWorker(w.prId); setSelIsland(null); } }}
