@@ -413,12 +413,12 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
         }
       });
     });
-    // landmarks for big islands: a beacon buoy (20+ buildings), then a lighthouse (45+)
+    // landmarks for big islands: a beacon buoy (15+ buildings), then a lighthouse (35+)
     const away = Math.atan2(g.y, g.x);
     // put landmarks on the seaward side that faces the viewer so buildings don't hide them
     const fr = (a: number) => Math.cos(a) + Math.sin(a);
     const [la, ba] = fr(away + 0.9) >= fr(away - 0.9) ? [away + 0.9, away - 0.5] : [away - 0.9, away + 0.5];
-    if (b >= 20) {
+    if (b >= 15) {
       const bxw = g.x + Math.cos(ba) * (g.R + 6), byw = g.y + Math.sin(ba) * (g.R + 6);
       add(bxw, byw, () => {
         const [x1, y1] = proj(bxw, byw, 0); const rb = Math.round(Math.sin(t * 2 + gi) * 0.6);
@@ -430,7 +430,7 @@ export function draw(ctx: Ctx, c: Compiled, w: WorldState, selected: string | nu
         if (on && night > 0.2) glows.push([x1, y1 - 10 + rb, 5]);
       });
     }
-    if (b >= 45) {
+    if (b >= 35) {
       const lxw = g.x + Math.cos(la) * (g.R - 3), lyw = g.y + Math.sin(la) * (g.R - 3);
       add(lxw, lyw, () => {
         for (let k = 0; k < 6; k++) box(ctx, lxw, lyw, k * 3, 2.2 - k * 0.15, 2.2 - k * 0.15, 3, k % 2 ? P.red : P.paper);
