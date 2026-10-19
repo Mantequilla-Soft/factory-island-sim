@@ -23,7 +23,8 @@ export function useWorldCanvas(canvasRef: RefObject<HTMLCanvasElement | null>, s
     const l = latest.current;
     if (!ctx || !l.compiled || !l.world) return;
     if (!sceneRef.current) { sceneRef.current = document.createElement("canvas"); sceneRef.current.width = RW; sceneRef.current.height = RH; }
-    const sctx = sceneRef.current.getContext("2d")!;
+    const sctx = sceneRef.current.getContext("2d");
+    if (!sctx) return;
     sctx.imageSmoothingEnabled = false;
     const now = performance.now();
     fx.current = fx.current.filter((f) => now - f.born < FX_LIFE);
