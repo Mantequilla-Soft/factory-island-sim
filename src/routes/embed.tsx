@@ -9,6 +9,7 @@ import { ALLOWED_SNAPSHOT_HOSTS, DEFAULT_ORG, SNAPSHOTS_BASE, prNumber } from "@
 import { loadSnapshot } from "@/lib/snapshotSource";
 import { SPEEDS, emit, parentOrigin, parseCommand, type EmbedEvent } from "@/lib/embedProtocol";
 import { Scorecard } from "@/components/Scorecard";
+import { ZoomControls } from "@/components/ZoomControls";
 
 /**
  * Chrome-less player meant to be framed by another site.
