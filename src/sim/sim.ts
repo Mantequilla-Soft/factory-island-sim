@@ -167,7 +167,7 @@ function keepInWater(p: Pt, isl: IslandCtx[]): Pt {
 }
 
 /** Pure position of one creature in world units at play-time t. */
-function creatureWorld(c: Compiled, x: Compiled["issues"][number], I: IslandCtx, isl: IslandCtx[], t: number): { p: Pt; anchor?: Pt; dive: number } {
+function creatureWorld(c: Compiled, x: Compiled["issues"][number], I: IslandCtx, isl: IslandCtx[], t: number): { p: Pt; anchor: Pt | undefined; dive: number } {
   const seed = hash(x.issue.id);
   const ph = (seed % 6283) / 1000; // phase 0..2π
   const n = c.islands.length;
