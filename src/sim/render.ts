@@ -175,7 +175,7 @@ function drawWorker(ctx: Ctx, x: number, y: number, t: number, actor: string, is
   px(ctx, lx - 2, ly - 3 + (step ? 1 : 0), P.ink, 1, 3 - (step ? 1 : 0));
   px(ctx, lx + 1, ly - 3 + (step ? 0 : 1), P.ink, 1, 3 - (step ? 0 : 1));
   box(ctx, x, y, 3 + bob, 2, 2, 5, SHIRTS[h % SHIRTS.length]!);
-  box(ctx, x, y, 8 + bob, 2.4, 2.4, 4, P.skin, HAIR[(h >> 4) % HAIR.length]!);
+  box(ctx, x, y, 8 + bob, 2.4, 2.4, 4, P.skin, HAIR[(h >>> 4) % HAIR.length]!);
   // hair fringe + eyes on the face we're looking toward
   const front = dir.x + dir.y >= -0.01;
   if (front) {
